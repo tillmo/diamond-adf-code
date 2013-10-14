@@ -1,0 +1,22 @@
+usage: diamond.py [-h] [-cf] [-m] [-sm] [-g] [-c] [-a] [-p]
+                  [--transform_pform | --transform_prio] [-all] [--version]
+                  instance
+
+Program to compute different models and sets for a given ADF
+
+positional arguments:
+  instance              Filename of the ADF instance
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -cf, --conflict-free  compute the conflict free sets
+  -m, --model           compute the two-valued models
+  -sm, --stablemodel    compute the stable models
+  -g, --grounded        compute the grounded model
+  -c, --complete        compute the complete models
+  -a, --admissible      compute the admissible models
+  -p, --preferred       compute the preferred model
+  --transform_pform     transform a pForm ADF before the computation
+  --transform_prio      transform a prioritized ADF before the computation
+  -all, --all           compute all sets and models
+  --version             prints the current version
