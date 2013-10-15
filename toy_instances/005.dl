@@ -1,0 +1,12 @@
+s(a;b;c;d).
+l(b, a).
+l(c, a).
+l(c, b).
+l(b, c).
+l(d, c).
+l(c, d).
+
+co(a). ci(a,1,b). ci(a,2,c). co(a,1,b). co(a,1,c).
+co(b). ci(b,1,c).
+co(c). ci(c,1,b). co(c,1,d). co(c,2,b). co(c,2,d).
+ci(d). co(d,1,c).

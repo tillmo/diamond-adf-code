@@ -1,0 +1,14 @@
+%test adf in pform representation by joh
+
+ac(5,c(v)).
+ac(1,neg(0)).
+ac(4,and(5,3)).
+ac(2,or(neg(3),1)).
+ac(3,or(neg(4),neg(2))).
+ac(0,c(v)).
+statement(0).
+statement(3).
+statement(2).
+statement(4).
+statement(1).
+statement(5). 

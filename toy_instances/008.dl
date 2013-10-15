@@ -1,0 +1,7 @@
+s(a;b;c).
+l(a;c,b).
+l(b,c).
+
+ci(a).
+ci(b). ci(b,1,c). ci(b,2,a;c). co(b,1,a).
+co(c). ci(c,1,b).

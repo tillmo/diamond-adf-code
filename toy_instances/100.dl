@@ -1,0 +1,14 @@
+% ---------------------------
+% 3 self supporting statements
+% shall result in 3^3 (=27) complete instances
+% ---------------------------
+
+s(a;b;c).
+l(a,a).
+l(b,b).
+l(c,c).
+
+co(a;b;c).
+ci(a,1,a).
+ci(b,1,b).
+ci(c,1,c).
