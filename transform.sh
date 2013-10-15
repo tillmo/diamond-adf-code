@@ -1,1 +1,0 @@
-eclipse -b transform.pl -e main -- "$@"
