@@ -1,4 +1,41 @@
-usage: diamond.py [-h] [-cf] [-m] [-sm] [-g] [-c] [-a] [-p]
++-------------------------------
+| DIAMOND                            
+| DIAlectical MOdels eNcodiNg         
+|
+
+==============
+ Requirements
+
+ + Python (3.3.0)
+ + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1)
+ + eclipse-prolog (6.1)
+ + to use the CL-Script "diamond.py" a Unix-like operating system is needed
+
+==============
+ Installation
+
+ -) The newest version is available at https://sourceforge.net/projects/diamond-adf
+ -) Extract the tar-ball to a directory
+ -) At the first run of the diamond.py script a config file is created (at the specified location via the -cfg option or at ~/.diamond per default)
+ -) If the required programs are not in the $PATH environment, set their locations in the configuration file
+ -) If you use a newer gringo than 3.0.5 and want to compute preferred models, provide the location of 3.0.5 in the config-file as well
+
+==============
+ Configuration
+
+The default configuration file looks as follows:
+[Path]
+installdir = <location of the diamond.py script>
+gringo = gringo
+gringo305 = gringo
+clasp = clasp
+claspd = claspD
+eclipse = eclipse
+
+==============
+ Usage - with the diamond script
+
+usage: diamond.py [-h] [-cf] [-m] [-sm] [-g] [-c] [-a] [-p] [-cfg CFGFILE]
                   [--transform_pform | --transform_prio] [-all] [--version]
                   instance
 
@@ -16,7 +53,41 @@ optional arguments:
   -c, --complete        compute the complete models
   -a, --admissible      compute the admissible models
   -p, --preferred       compute the preferred model
+  -cfg CFGFILE          specify a config-file
   --transform_pform     transform a pForm ADF before the computation
   --transform_prio      transform a prioritized ADF before the computation
   -all, --all           compute all sets and models
   --version             prints the current version
+
+==============
+ Usage - without the diamond script
+
+To compute the models without the diamond script use the following commands (Note: those are Unix-Shell commands. For windows use the appropriate dual commands)
+
++----------------+------------------------------------------------------+
+| semantics      | asp-encodings needed                                 | 
++----------------+------------------------------------------------------+
+| conflict-free  | base.lp, cf.lp                                       | 
+| model          | base.lp, cf.lp, model.p                              | 
+| stable model   | base.lp, cf.lp, model.lp, opsm.lp, 3KK.lp, stable.lp | 
+| grounded model | base.lp, op.lp, 3KK.lp grounded.lp                   | 
+| complete model | base.lp, op.lp, complete.lp                          | 
+| admissible     | base.lp, op.lp, admissible.lp                        | 
+| preferred      | base.lp, op.lp, admissible.lp, preferred.lp          | 
+
+
+ semantics       example call (BASH)
+
+ conflict-free   gringo base.lp cf.lp instance.lp | clasp 0
+ model           gringo base.lp cf.lp instance.lp | clasp 0
+ stable model    gringo base.lp cf.lp model.lp opsm.lp 3KK.lp stable.lp instance.lp | clasp 0
+ grounded model  gringo base.lp cf.lp 3KK.lp grounded.lp instance.lp | clasp
+ complete model  gringo base.lp op.lp complete.lp instance.lp | clasp 0
+ admissible      gringo base.lp op.lp admissible.lp instance.lp | clasp 0
+ preferred       gringo --reify base.lp op.lp admissible.lp preferred.lp instance.lp | gringo - metasp/{meta.lp,metaD.lp,meta0.lp} <(echo "optimize(1,1,incl).") | claspD 0
+
+To transform an ADF from the propostional formula representation use
+eclipse -b transform.pl -e main -- <instance>
+
+To transform an ADF from the prioritzed representation use
+python transform.py <instance>
