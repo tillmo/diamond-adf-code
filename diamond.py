@@ -164,7 +164,7 @@ def main():
         print("==============================")
         print("complete models:")
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
     if args.admissible or args.all:
         print("==============================")
         print("admissible models:")
