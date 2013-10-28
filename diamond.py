@@ -29,7 +29,7 @@ import tempfile
 import time
 import sys
 
-version='0.9'
+version='0.11'
 
 # default variables
 encdir = "lib"
@@ -108,8 +108,8 @@ def main():
     args=parser.parse_args()
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
-    claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
     initvars(args.cfgfile)
+    claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
     for el in iter(enc):
         enc[el] = installdir + "/" + encdir + "/" + enc[el]
     if args.version:
@@ -146,7 +146,7 @@ def main():
         print("==============================")
         print("conflict free sets:")
         os.system("echo '#hide.#show in/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['cf'] + instnace + " " + tmp.name + claspstring) 
+        os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring) 
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
