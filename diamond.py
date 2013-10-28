@@ -52,6 +52,8 @@ enc = dict(
     op = "op.lp ",
     opsm = "opsm.lp ",
     prf = "preferred.lp ",
+    pref = "pref.lp ",
+    prefpy = "pref.py ",
     prio_trans = "prio_trans.lp ",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
@@ -155,26 +157,26 @@ def main():
         print("stable models:")
         os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + tmp.name + claspstring)
-    if args.grounded or args.all:
-        print("==============================")
-        print("grounded model")
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
-    if args.complete or args.all:
-        print("==============================")
-        print("complete models:")
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
     if args.admissible or args.all:
         print("==============================")
         print("admissible models:")
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring)
+    if args.complete or args.all:
+        print("==============================")
+        print("complete models:")
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
+    if args.grounded or args.all:
+        print("==============================")
+        print("grounded model")
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
     if args.preferred:# or args.all:
         print("==============================")
         print("preferred model:")
-        os.system("echo 'optimize(1,1,incl).' > " + tmp.name) 
-        os.system(gringo305 + " --reify " + enc['adm'] + enc['prf'] + enc['op'] + enc['base'] + instance + " 2> /dev/null | " + gringo305 + " - " + installdir + "/" + encdir + "/metasp/{meta.lp,metaD.lp,metaO.lp} " + tmp.name + " 2> /dev/null | " + claspD + " 0 ")
-
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+        
 if __name__ == "__main__":
     main()
