@@ -201,7 +201,7 @@ vocabulary(F, V) :-
 	!,
 	vocabulary(G, VG),
 	vocabulary(H, VH),
-	append(VG, VH, V).
+	union(VG, VH, V).
 vocabulary(A, [A]) :-
 	atomic(A).
 
