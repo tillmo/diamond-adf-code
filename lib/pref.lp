@@ -29,6 +29,7 @@ adm(X) :- udec(_,X).
 1{pref(X):adm(X)}1.
 
 incomparable(X,Y) :- adm(X), adm(Y), in(Z,X), out(Z,Y).
+incomparable(X,Y) :- adm(X), adm(Y), st(X,Y), st(Y,X).
 incomparable(Y,X) :- incomparable(X,Y).
 
 st(X,Y) :- adm(X), adm(Y), udec(Z,X), not udec(Z,Y), X != Y.
