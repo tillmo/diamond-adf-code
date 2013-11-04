@@ -121,6 +121,7 @@ def main():
         instance = tmp2.name
         print("==============================")
         print("transforming pForm ADF...")
+        sys.stdout.flush()
         #start = time.time()
         os.system(eclipse + " -b " + enc['transformpl'] + "-e main -- " + os.path.abspath(args.instance) + " " + instance)
         #os.system("./transform.sh " + os.path.abspath(args.instance) + " " + instance)
@@ -134,6 +135,7 @@ def main():
         instance = tmp2.name
         print("==============================")
         print("transforming prioritized ADF...")
+        sys.stdout.flush()
         start = time.time()
         wd = os.getcwd()
         os.chdir(installdir + "/" + encdir)
@@ -145,36 +147,43 @@ def main():
     if args.cf or args.all:
         print("==============================")
         print("conflict free sets:")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring) 
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + tmp.name + claspstring)
     if args.smodel or args.all:
         print("==============================")
         print("stable models:")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + tmp.name + claspstring)
     if args.admissible or args.all:
         print("==============================")
         print("admissible models:")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring)
     if args.complete or args.all:
         print("==============================")
         print("complete models:")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
     if args.grounded or args.all:
         print("==============================")
         print("grounded model")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
     if args.preferred:# or args.all:
         print("==============================")
         print("preferred model:")
+        sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
         
