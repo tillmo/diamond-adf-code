@@ -28,6 +28,7 @@ import os
 import tempfile
 import time
 import sys
+import subprocess as sp
 
 version='0.11'
 
@@ -55,6 +56,7 @@ enc = dict(
     pref = "pref.lp ",
     prefpy = "pref.py ",
     prio_trans = "prio_trans.lp ",
+    repr_change = "repr_change.lp",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
     transformpy = "transform.py ")
@@ -100,8 +102,9 @@ def main():
     parser.add_argument('-p', '--preferred', help='compute the preferred model', action='store_true', dest='preferred')
     parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--transform_pform', help='transform a pForm ADF before the computation', action='store_true', dest='transformpform')
-    group.add_argument('--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
+    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
+    group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
+    group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
     parser.add_argument('-all', '--all', help='compute all sets and models', action='store_true', dest='all')
     parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
     
@@ -117,10 +120,26 @@ def main():
         print("DIAMOND version " + version)
         print("==============================")
     if args.transformpform:
+        tmp2=tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=True)
+        instance = tmp2.name
+        print("==============================")
+        print("transforming pForm ADF using ASP...")
+        sys.stdout.flush()
+        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=True,stdout=sp.PIPE) as p:
+            sto = p.stdout
+            i=1
+            for byteLine in sto:
+                line = byteLine.decode(sys.stdout.encoding).strip() 
+                if "ci(" in line or "co(" in line:
+                    tmp2.write(line.replace("constant", str(i)).replace(") l(","). l(").replace(") s(","). s(").replace(") co(","). co(").replace(") ci(","). ci(")+".\n")
+                    i+=1
+        tmp2.close()
+
+    if args.transformpformec:
         tmp2=tempfile.NamedTemporaryFile(delete=True)
         instance = tmp2.name
         print("==============================")
-        print("transforming pForm ADF...")
+        print("transforming pForm ADF using Eclipse...")
         sys.stdout.flush()
         #start = time.time()
         os.system(eclipse + " -b " + enc['transformpl'] + "-e main -- " + os.path.abspath(args.instance) + " " + instance)
