@@ -30,7 +30,7 @@ import time
 import sys
 import subprocess as sp
 
-version='0.11'
+version='0.12'
 
 # default variables
 encdir = "lib"
@@ -95,7 +95,7 @@ def initvars(cfgfile):
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
-    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
+#    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
     parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
     parser.add_argument('-g', '--grounded', help='compute the grounded model', action='store_true', dest='grounded')

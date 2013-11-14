@@ -35,8 +35,8 @@ eclipse = eclipse
 ==============
  Usage - with the diamond script
 
-usage: diamond.py [-h] [-cf] [-m] [-sm] [-g] [-c] [-a] [-p] [-cfg CFGFILE]
-                  [--transform_pform | --transform_prio] [-all] [--version]
+usage: diamond.py [-h] [-m] [-sm] [-g] [-c] [-a] [-p] [-cfg CFGFILE]
+                  [-pf | -pfe | -pfr] [-all] [--version]
                   instance
 
 Program to compute different models and sets for a given ADF
@@ -46,7 +46,6 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -cf, --conflict-free  compute the conflict free sets
   -m, --model           compute the two-valued models
   -sm, --stablemodel    compute the stable models
   -g, --grounded        compute the grounded model
@@ -54,8 +53,14 @@ optional arguments:
   -a, --admissible      compute the admissible models
   -p, --preferred       compute the preferred model
   -cfg CFGFILE          specify a config-file
-  --transform_pform     transform a pForm ADF before the computation
-  --transform_prio      transform a prioritized ADF before the computation
+  -pf, --transform_pform
+                        acceptance functions are given as propositional
+                        formulas (translation using ASP)
+  -pfe, --transform_pform_eclipse
+                        acceptance functions are given as propositional
+                        formulas (translation using Eclipse Prolog)
+  -pfr, --transform_prio
+                        transform a prioritized ADF before the computation
   -all, --all           compute all sets and models
   --version             prints the current version
 
