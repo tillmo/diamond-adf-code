@@ -61,6 +61,8 @@ enc = dict(
     transformpl = "transform.pl ",
     transformpy = "transform.py ")
 
+# files to delete
+filesToDelete=[]
 
 def getoptval(config,section,option,default):
     if config.has_option(section,option):
@@ -120,7 +122,7 @@ def main():
         print("DIAMOND version " + version)
         print("==============================")
     if args.transformpform:
-        tmp2=tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', delete=True)
+        tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
         print("==============================")
         print("transforming pForm ADF using ASP...")
@@ -134,6 +136,7 @@ def main():
                     tmp2.write(line.replace("constant", str(i)).replace(") l(","). l(").replace(") s(","). s(").replace(") co(","). co(").replace(") ci(","). ci(")+".\n")
                     i+=1
         tmp2.close()
+        filesToDelete.append(instance)
 
     if args.transformpformec:
         tmp2=tempfile.NamedTemporaryFile(delete=True)
@@ -205,6 +208,7 @@ def main():
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
-        
+    for fileToDelete in filesToDelete:
+        os.remove(fileToDelete)
 if __name__ == "__main__":
     main()
