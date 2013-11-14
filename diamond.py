@@ -2,7 +2,7 @@
 ################################################################################
 ##
 ## Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
-##
+##                      Joerg Puehrer, puehrer@informatik.uni-leipzig.de
 ## This file is part of diamond.
 ##
 ## diamond is free software: you can redistribute it and/or modify
@@ -125,7 +125,7 @@ def main():
         print("==============================")
         print("transforming pForm ADF using ASP...")
         sys.stdout.flush()
-        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=False,stdout=sp.PIPE) as p:
+        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=True,stdout=sp.PIPE) as p:
             sto = p.stdout
             i=1
             for byteLine in sto:
