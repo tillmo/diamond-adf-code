@@ -102,6 +102,7 @@ def main():
     parser.add_argument('-c', '--complete', help='compute the complete models', action='store_true', dest='complete')
     parser.add_argument('-a', '--admissible', help='compute the admissible models', action='store_true', dest='admissible')
     parser.add_argument('-p', '--preferred', help='compute the preferred model', action='store_true', dest='preferred')
+    parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
     parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
@@ -173,6 +174,8 @@ def main():
     #     os.system("echo '#hide.#show in/1.' > " + tmp.name)
     #     os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring)
         
+    if args.print_transform:
+        os.system("cat " + instance)
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
