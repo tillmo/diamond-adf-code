@@ -28,3 +28,4 @@
 % ---------------------------
 
 :- s(S), not in(S), ismodel(S).
+out(S) :- s(S), not in(S).

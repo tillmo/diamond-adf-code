@@ -166,17 +166,18 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
-    if args.cf or args.all:
-        print("==============================")
-        print("conflict free sets:")
-        sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring) 
+    # if args.cf or args.all:
+    #     print("==============================")
+    #     print("conflict free sets:")
+    #     sys.stdout.flush()
+    #     os.system("echo '#hide.#show in/1.' > " + tmp.name)
+    #     os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring)
+        
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.' > " + tmp.name)
+        os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + tmp.name + claspstring)
     if args.smodel or args.all:
         print("==============================")
