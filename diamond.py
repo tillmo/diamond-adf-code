@@ -40,6 +40,7 @@ gringo305 = "gringo"
 clasp = "clasp"
 claspD = "claspD"
 eclipse = "eclipse"
+clingo = "clingo"
 
 # encoding filenames
 enc = dict(
@@ -71,7 +72,7 @@ def getoptval(config,section,option,default):
         return default
 
 def initvars(cfgfile):
-    global installdir, gringo, gringo305,clasp,claspD,eclipse
+    global installdir, gringo, gringo305,clasp,claspD,eclipse,clingo
     cfgfile = os.path.expandvars(os.path.expanduser(cfgfile))
     config = cp.ConfigParser()
     if os.path.exists(cfgfile):
@@ -82,6 +83,7 @@ def initvars(cfgfile):
         clasp = getoptval(config,"Path","clasp",clasp)
         claspD = getoptval(config,"Path","claspD",claspD)
         eclipse = getoptval(config,"Path","eclipse",eclipse)
+        clingo = getoptval(config,"Path","clingo",clingo)
     else: #config file does not exist - create one
         config.add_section("Path")
         config.set("Path","installdir",installdir)
@@ -90,6 +92,7 @@ def initvars(cfgfile):
         config.set("Path","clasp", clasp)
         config.set("Path","claspD", claspD)
         config.set("Path","eclipse", eclipse)
+        config.set("Path","clingo", clingo)
         config.write(open(cfgfile,'w'))
 
 def main():
