@@ -127,7 +127,7 @@ def main():
         print("==============================")
         print("transforming pForm ADF using ASP...")
         sys.stdout.flush()
-        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=True,stdout=sp.PIPE) as p:
+        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=True,stdout=sp.PIPE,stderr=None) as p:
             sto = p.stdout
             i=1
             for byteLine in sto:
