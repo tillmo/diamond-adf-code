@@ -51,7 +51,7 @@ subformulaEval(iff(A,B),c(v)):-s(S), subformula(S,iff(A,B)),subformulaEval(A,c(f
 subformulaEval(iff(A,B),c(f)):-s(S), subformula(S,iff(A,B)),subformulaEval(A,c(v)),subformulaEval(B,c(f)).
 subformulaEval(iff(A,B),c(f)):-s(S), subformula(S,iff(A,B)),subformulaEval(A,c(f)),subformulaEval(B,c(v)).
 
-subformulaEval(imp(A,B),c(f)):-s(S), subformula(S,imp(A,B)),subformulaEval(A,c(t)),subformulaEval(B,c(f)).
+subformulaEval(imp(A,B),c(f)):-s(S), subformula(S,imp(A,B)),subformulaEval(A,c(v)),subformulaEval(B,c(f)).
 subformulaEval(imp(A,B),c(v)):-s(S), subformula(S,imp(A,B)),subformulaEval(A,c(f)).
 subformulaEval(imp(A,B),c(v)):-s(S), subformula(S,imp(A,B)),subformulaEval(B,c(v)).
 
