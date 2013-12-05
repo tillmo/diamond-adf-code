@@ -29,8 +29,11 @@ import tempfile
 import time
 import sys
 import subprocess as sp
+import lib.tools.formulatree as ft
+import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
+import lib.tools.utils as util
 
-version='0.11'
+version='0.13'
 
 # default variables
 encdir = "lib"
@@ -40,6 +43,7 @@ gringo305 = "gringo"
 clasp = "clasp"
 claspD = "claspD"
 eclipse = "eclipse"
+clingo = "clingo"
 
 # encoding filenames
 enc = dict(
@@ -59,7 +63,8 @@ enc = dict(
     repr_change = "repr_change.lp",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
-    transformpy = "transform.py ")
+    transformpy = "transform.py ",
+    formulatree = os.path.join('tools','formulatree.lp'))
 
 # files to delete
 filesToDelete=[]
@@ -71,7 +76,7 @@ def getoptval(config,section,option,default):
         return default
 
 def initvars(cfgfile):
-    global installdir, gringo, gringo305,clasp,claspD,eclipse
+    global installdir, gringo, gringo305,clasp,claspD,eclipse,clingo
     cfgfile = os.path.expandvars(os.path.expanduser(cfgfile))
     config = cp.ConfigParser()
     if os.path.exists(cfgfile):
@@ -82,6 +87,7 @@ def initvars(cfgfile):
         clasp = getoptval(config,"Path","clasp",clasp)
         claspD = getoptval(config,"Path","claspD",claspD)
         eclipse = getoptval(config,"Path","eclipse",eclipse)
+        clingo = getoptval(config,"Path","clingo",clingo)
     else: #config file does not exist - create one
         config.add_section("Path")
         config.set("Path","installdir",installdir)
@@ -90,21 +96,24 @@ def initvars(cfgfile):
         config.set("Path","clasp", clasp)
         config.set("Path","claspD", claspD)
         config.set("Path","eclipse", eclipse)
+        config.set("Path","clingo", clingo)
         config.write(open(cfgfile,'w'))
 
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
-    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
+#    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
     parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
     parser.add_argument('-g', '--grounded', help='compute the grounded model', action='store_true', dest='grounded')
     parser.add_argument('-c', '--complete', help='compute the complete models', action='store_true', dest='complete')
     parser.add_argument('-a', '--admissible', help='compute the admissible models', action='store_true', dest='admissible')
     parser.add_argument('-p', '--preferred', help='compute the preferred model', action='store_true', dest='preferred')
+    parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
+    parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
+    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP) (recommended)', action='store_true', dest='transformpform')
     group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
     group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
     parser.add_argument('-all', '--all', help='compute all sets and models', action='store_true', dest='all')
@@ -116,11 +125,19 @@ def main():
     initvars(args.cfgfile)
     claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
     for el in iter(enc):
-        enc[el] = installdir + "/" + encdir + "/" + enc[el]
+        enc[el] = os.path.join(installdir,encdir,enc[el])
     if args.version:
         print("==============================")
         print("DIAMOND version " + version)
         print("==============================")
+    if args.adf2dadf_adm:
+        print("==============================")
+        print("transforming adf 2 dadf ...")
+        with sp.Popen(clingo + " " + enc['formulatree'] + " " + instance + " 0 --outf=2", shell=True, stdout=sp.PIPE) as p:
+            out =''
+            for byteLine in p.stdout:
+               out  = out + byteLine.decode(sys.stdout.encoding).strip()
+            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
     if args.transformpform:
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
@@ -166,17 +183,20 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
-    if args.cf or args.all:
-        print("==============================")
-        print("conflict free sets:")
-        sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring) 
+    # if args.cf or args.all:
+    #     print("==============================")
+    #     print("conflict free sets:")
+    #     sys.stdout.flush()
+    #     os.system("echo '#hide.#show in/1.' > " + tmp.name)
+    #     os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring)
+        
+    if args.print_transform:
+        os.system("cat " + instance)
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.' > " + tmp.name)
+        os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + tmp.name + claspstring)
     if args.smodel or args.all:
         print("==============================")

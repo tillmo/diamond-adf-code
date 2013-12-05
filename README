@@ -7,7 +7,7 @@
  Requirements
 
  + Python (3.3.0)
- + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1)
+ + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1), clingo (4.x)
  + eclipse-prolog (6.1)
  + to use the CL-Script "diamond.py" a Unix-like operating system is needed
 
@@ -31,12 +31,13 @@ gringo305 = gringo
 clasp = clasp
 claspd = claspD
 eclipse = eclipse
+clingo = clingo
 
 ==============
- Usage - with the diamond script
+ Usage - with the diamond script (recommended)
 
-usage: diamond.py [-h] [-cf] [-m] [-sm] [-g] [-c] [-a] [-p] [-cfg CFGFILE]
-                  [--transform_pform | --transform_prio] [-all] [--version]
+usage: diamond.py [-h] [-m] [-sm] [-g] [-c] [-a] [-p] [-t] [-dadm]
+                  [-cfg CFGFILE] [-pf | -pfe | -pfr] [-all] [--version]
                   instance
 
 Program to compute different models and sets for a given ADF
@@ -46,16 +47,25 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -cf, --conflict-free  compute the conflict free sets
   -m, --model           compute the two-valued models
   -sm, --stablemodel    compute the stable models
   -g, --grounded        compute the grounded model
   -c, --complete        compute the complete models
   -a, --admissible      compute the admissible models
   -p, --preferred       compute the preferred model
+  -t, --transform       print the transformed adf to stdout
+  -dadm, --transform_2_dsadf_adm
+                        transforms a propositional formula adf into
+                        propositional formula dung style adf (admissible)
   -cfg CFGFILE          specify a config-file
-  --transform_pform     transform a pForm ADF before the computation
-  --transform_prio      transform a prioritized ADF before the computation
+  -pf, --transform_pform
+                        acceptance functions are given as propositional
+                        formulas (translation using ASP) (recommended)
+  -pfe, --transform_pform_eclipse
+                        acceptance functions are given as propositional
+                        formulas (translation using Eclipse Prolog)
+  -pfr, --transform_prio
+                        transform a prioritized ADF before the computation
   -all, --all           compute all sets and models
   --version             prints the current version
 
