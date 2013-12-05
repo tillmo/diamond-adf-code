@@ -29,8 +29,11 @@ import tempfile
 import time
 import sys
 import subprocess as sp
+import lib.tools.formulatree as ft
+import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
+import lib.tools.utils as util
 
-version='0.12'
+version='0.13'
 
 # default variables
 encdir = "lib"
@@ -60,7 +63,8 @@ enc = dict(
     repr_change = "repr_change.lp",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
-    transformpy = "transform.py ")
+    transformpy = "transform.py ",
+    formulatree = os.path.join('tools','formulatree.lp'))
 
 # files to delete
 filesToDelete=[]
@@ -106,9 +110,10 @@ def main():
     parser.add_argument('-a', '--admissible', help='compute the admissible models', action='store_true', dest='admissible')
     parser.add_argument('-p', '--preferred', help='compute the preferred model', action='store_true', dest='preferred')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
+    parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
+    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP) (recommended)', action='store_true', dest='transformpform')
     group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
     group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
     parser.add_argument('-all', '--all', help='compute all sets and models', action='store_true', dest='all')
@@ -120,11 +125,19 @@ def main():
     initvars(args.cfgfile)
     claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
     for el in iter(enc):
-        enc[el] = installdir + "/" + encdir + "/" + enc[el]
+        enc[el] = os.path.join(installdir,encdir,enc[el])
     if args.version:
         print("==============================")
         print("DIAMOND version " + version)
         print("==============================")
+    if args.adf2dadf_adm:
+        print("==============================")
+        print("transforming adf 2 dadf ...")
+        with sp.Popen(clingo + " " + enc['formulatree'] + " " + instance + " 0 --outf=2", shell=True, stdout=sp.PIPE) as p:
+            out =''
+            for byteLine in p.stdout:
+               out  = out + byteLine.decode(sys.stdout.encoding).strip()
+            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
     if args.transformpform:
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name

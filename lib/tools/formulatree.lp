@@ -27,6 +27,8 @@ subformula(F) :- subformula(or(F,_)).
 subformula(F) :- subformula(or(_,F)).
 subformula(F) :- subformula(neg(F)).
 
+formOp(c(v),atom) :- subformula(c(v)).
+formOp(c(f),atom) :- subformula(c(f)).
 formOp(F,atom) :- subformula(F), ac(F,_).
 formOp(and(F1,F2),and) :- subformula(and(F1,F2)).
 formOp(or(F1,F2),or) :- subformula(or(F1,F2)).

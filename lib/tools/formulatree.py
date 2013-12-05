@@ -24,21 +24,23 @@
 ##
 
 import sys
+import os
 import re
+import subprocess as sp
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import claspresult as claspresult
 
 def formulatree(input):
     cr = claspresult.ClaspResult(input)
     if cr.sat:
         anss = cr.answersets[0]
-        print(anss)
         acs = [x[3:-1] for x in anss if x.startswith('ac(')]
         formOps = [x[7:-1] for x in anss if x.startswith('formOp(')]
         forms = [getformtriple(x[5:-1]) for x in anss if x.startswith('form(')]
         
         forest = {}
         for ac in acs:
-            pos = ac.find(',')
+            pos = getParenthesislessDelim(ac)[0]
             forest[ac[:pos]]=buildtree(ac[pos+1:],formOps,forms)
         return forest
 
@@ -64,12 +66,13 @@ def getchildren(children):
         pass
     return childlist
         
-                    
+def getParenthesislessDelim(string,delim=','):
+    openpar = [m.start() for m in re.finditer('\(',string)]
+    closepar = [m.start() for m in re.finditer('\)',string)]
+    return [x for x in [m.start() for m in re.finditer(delim,string)] if sum (i < x for i in openpar) == sum(i < x for i in closepar)]
 
 def getformtriple(form):
-    openpar = [m.start() for m in re.finditer('\(',form)]
-    closepar = [m.start() for m in re.finditer('\)',form)]
-    commata = [x for x in [m.start() for m in re.finditer(',',form)] if sum(i < x for i in openpar) == sum(i < x for i in closepar)]
+    commata = getParenthesislessDelim(form)
     return [form[:commata[0]],form[commata[0]+1:commata[1]],form[commata[1]+1:]]
 
 def main():
