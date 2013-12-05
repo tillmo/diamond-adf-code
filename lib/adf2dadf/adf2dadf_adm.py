@@ -66,7 +66,7 @@ def newstmtgen(existing):
 def isdungstyle(ft):
     if type(ft) == str:
         return False
-    if len(ft) == 2 and type(ft[1]==str):
+    if len(ft) == 2 and type(ft[1])==str:
         return True
     if len(ft) == 3 and ft[0] == 'and':
         return (isdungstyle(ft[1]) and isdungstyle(ft[2]))
