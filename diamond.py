@@ -46,6 +46,7 @@ clasp = "clasp"
 claspD = "claspD"
 eclipse = "eclipse"
 clingo = "clingo"
+python = "python"
 
 # encoding filenames
 enc = dict(
@@ -61,6 +62,8 @@ enc = dict(
     opsm = "opsm.lp ",
     prf = "preferred.lp ",
     pref = "pref.lp ",
+    ileq = "ileq.lp ",
+    rleq = "rleq.lp ",
     prefpy = "pref.py ",
     prio_trans = "prio_trans.lp ",
     repr_change = "repr_change.lp",
@@ -79,7 +82,7 @@ def getoptval(config,section,option,default):
         return default
 
 def initvars(cfgfile):
-    global installdir, gringo, gringo305,clasp,claspD,eclipse,clingo
+    global installdir, gringo, gringo305,clasp,claspD,eclipse,clingo,python
     cfgfile = os.path.expandvars(os.path.expanduser(cfgfile))
     config = cp.ConfigParser()
     if os.path.exists(cfgfile):
@@ -91,6 +94,7 @@ def initvars(cfgfile):
         claspD = getoptval(config,"Path","claspD",claspD)
         eclipse = getoptval(config,"Path","eclipse",eclipse)
         clingo = getoptval(config,"Path","clingo",clingo)
+        python = getoptval(config,"Path","python",python)
     else: #config file does not exist - create one
         config.add_section("Path")
         config.set("Path","installdir",installdir)
@@ -100,6 +104,7 @@ def initvars(cfgfile):
         config.set("Path","claspD", claspD)
         config.set("Path","eclipse", eclipse)
         config.set("Path","clingo", clingo)
+        config.set("Path","python", python)
         config.write(open(cfgfile,'w'))
 
 def main():
@@ -230,13 +235,13 @@ def main():
         print("preferred interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
     if args.naive:
         print("==============================")
         print("naive interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
