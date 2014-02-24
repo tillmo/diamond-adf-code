@@ -36,8 +36,9 @@ clingo = clingo
 ==============
  Usage - with the diamond script (recommended)
 
-usage: diamond.py [-h] [-cf] [-n] [-m] [-sm] [-g] [-c] [-a] [-p] [-t] [-dadm]
-                  [-cfg CFGFILE] [-pf | -pfe | -pfr] [-all] [--version]
+usage: diamond.py [-h] [-cf] [-n] [-stg] [-se] [-m] [-sm] [-g] [-c] [-a] [-p]
+                  [-t] [-dadm] [-cfg CFGFILE] [-pf | -pfe | -pfr] [-all]
+                  [--version]
                   instance
 
 Program to compute different models and sets for a given ADF
@@ -49,6 +50,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -cf, --conflict-free  compute the conflict-free interpretations
   -n, --naive           compute the naive interpretations
+  -stg, --stage         compute the stage interpretations
+  -se, --semi-model     compute the semi-model interpretations
   -m, --model           compute the two-valued models
   -sm, --stablemodel    compute the stable models
   -g, --grounded        compute the grounded interpretation
