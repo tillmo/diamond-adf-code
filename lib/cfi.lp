@@ -19,7 +19,7 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%% admissible.lp
+%% cfi.lp
 %%% ---------------------------
 % compute three-valued conflict-free interpretations
 % requires base op
