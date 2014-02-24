@@ -36,7 +36,7 @@ clingo = clingo
 ==============
  Usage - with the diamond script (recommended)
 
-usage: diamond.py [-h] [-m] [-sm] [-g] [-c] [-a] [-p] [-t] [-dadm]
+usage: diamond.py [-h] [-cf] [-n] [-m] [-sm] [-g] [-c] [-a] [-p] [-t] [-dadm]
                   [-cfg CFGFILE] [-pf | -pfe | -pfr] [-all] [--version]
                   instance
 
@@ -47,12 +47,14 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -cf, --conflict-free  compute the conflict-free interpretations
+  -n, --naive           compute the naive interpretations
   -m, --model           compute the two-valued models
   -sm, --stablemodel    compute the stable models
-  -g, --grounded        compute the grounded model
-  -c, --complete        compute the complete models
-  -a, --admissible      compute the admissible models
-  -p, --preferred       compute the preferred model
+  -g, --grounded        compute the grounded interpretation
+  -c, --complete        compute the complete interpretations
+  -a, --admissible      compute the admissible interpretations
+  -p, --preferred       compute the preferred interpretations
   -t, --transform       print the transformed adf to stdout
   -dadm, --transform_2_dsadf_adm
                         transforms a propositional formula adf into
@@ -66,7 +68,7 @@ optional arguments:
                         formulas (translation using Eclipse Prolog)
   -pfr, --transform_prio
                         transform a prioritized ADF before the computation
-  -all, --all           compute all sets and models
+  -all, --all           compute interpretations for all semantics
   --version             prints the current version
 
 ==============
@@ -77,27 +79,30 @@ To compute the models without the diamond script use the following commands (Not
 +----------------+------------------------------------------------------+
 | semantics      | asp-encodings needed                                 | 
 +----------------+------------------------------------------------------+
-| conflict-free  | base.lp, cf.lp                                       | 
+| conflict-free  | base.lp, op.lp, cfi.lp                               |
 | model          | base.lp, cf.lp, model.p                              | 
 | stable model   | base.lp, cf.lp, model.lp, opsm.lp, 3KK.lp, stable.lp | 
 | grounded model | base.lp, op.lp, 3KK.lp grounded.lp                   | 
 | complete model | base.lp, op.lp, complete.lp                          | 
 | admissible     | base.lp, op.lp, admissible.lp                        | 
 | preferred      | base.lp, op.lp, admissible.lp, preferred.lp          | 
+| naive          | base.lp, op.lp, cfi.lp, preferred.lp                 |
++----------------+------------------------------------------------------+
 
 
  semantics       example call (BASH)
 
- conflict-free   gringo base.lp cf.lp instance.lp | clasp 0
+ conflict-free   gringo base.lp op.lp cfi.lp instance.lp | clasp 0
  model           gringo base.lp cf.lp instance.lp | clasp 0
  stable model    gringo base.lp cf.lp model.lp opsm.lp 3KK.lp stable.lp instance.lp | clasp 0
  grounded model  gringo base.lp cf.lp 3KK.lp grounded.lp instance.lp | clasp
  complete model  gringo base.lp op.lp complete.lp instance.lp | clasp 0
  admissible      gringo base.lp op.lp admissible.lp instance.lp | clasp 0
+ naive           gringo --reify base.lp op.lp cfi.lp preferred.lp instance.lp | gringo - metasp/{meta.lp,metaD.lp,meta0.lp} <(echo "optimize(1,1,incl).") | claspD 0
  preferred       gringo --reify base.lp op.lp admissible.lp preferred.lp instance.lp | gringo - metasp/{meta.lp,metaD.lp,meta0.lp} <(echo "optimize(1,1,incl).") | claspD 0
 
 To transform an ADF from the propostional formula representation use
 eclipse -b transform.pl -e main -- <instance>
 
-To transform an ADF from the prioritzed representation use
+To transform an ADF from the prioritized representation use
 python transform.py <instance>

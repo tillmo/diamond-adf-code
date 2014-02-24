@@ -2,7 +2,9 @@
 ################################################################################
 ##
 ## Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
-##                      Joerg Puehrer, puehrer@informatik.uni-leipzig.de
+##                Joerg Puehrer, puehrer@informatik.uni-leipzig.de
+##                Hannes Strass, strass@informatik.uni-leipzig.de
+##
 ## This file is part of diamond.
 ##
 ## diamond is free software: you can redistribute it and/or modify
@@ -33,7 +35,7 @@ import lib.tools.formulatree as ft
 import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
 import lib.tools.utils as util
 
-version='0.14'
+version='0.15'
 
 # default variables
 encdir = "lib"
@@ -51,6 +53,7 @@ enc = dict(
     adm = "admissible.lp ",
     base = "base.lp ",
     cf = "cf.lp ",
+    cfi = "cfi.lp ",
     cmp = "complete.lp ",
     grd = "grounded.lp ",
     model = "model.lp ",
@@ -102,13 +105,14 @@ def initvars(cfgfile):
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
-#    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
+    parser.add_argument('-cf', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
+    parser.add_argument('-n', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
     parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
-    parser.add_argument('-g', '--grounded', help='compute the grounded model', action='store_true', dest='grounded')
-    parser.add_argument('-c', '--complete', help='compute the complete models', action='store_true', dest='complete')
-    parser.add_argument('-a', '--admissible', help='compute the admissible models', action='store_true', dest='admissible')
-    parser.add_argument('-p', '--preferred', help='compute the preferred model', action='store_true', dest='preferred')
+    parser.add_argument('-g', '--grounded', help='compute the grounded interpretation', action='store_true', dest='grounded')
+    parser.add_argument('-c', '--complete', help='compute the complete interpretations', action='store_true', dest='complete')
+    parser.add_argument('-a', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
+    parser.add_argument('-p', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
     parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
@@ -116,7 +120,7 @@ def main():
     group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP) (recommended)', action='store_true', dest='transformpform')
     group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
     group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
-    parser.add_argument('-all', '--all', help='compute all sets and models', action='store_true', dest='all')
+    parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
     parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
     
     args=parser.parse_args()
@@ -183,13 +187,12 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
-    # if args.cf or args.all:
-    #     print("==============================")
-    #     print("conflict free sets:")
-    #     sys.stdout.flush()
-    #     os.system("echo '#hide.#show in/1.' > " + tmp.name)
-    #     os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring)
-        
+    if args.conflict_free or args.all:
+        print("==============================")
+        print("conflict-free interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring)
     if args.print_transform:
         os.system("cat " + instance)
     if args.model or args.all:
@@ -206,28 +209,34 @@ def main():
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + tmp.name + claspstring)
     if args.admissible or args.all:
         print("==============================")
-        print("admissible models:")
+        print("admissible interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring)
     if args.complete or args.all:
         print("==============================")
-        print("complete models:")
+        print("complete interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
     if args.grounded or args.all:
         print("==============================")
-        print("grounded model")
+        print("grounded interpretation")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
     if args.preferred:# or args.all:
         print("==============================")
-        print("preferred model:")
+        print("preferred interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+    if args.naive:
+        print("==============================")
+        print("naive interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
