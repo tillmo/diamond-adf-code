@@ -2,7 +2,9 @@
 ################################################################################
 ##
 ## Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
-##                      Joerg Puehrer, puehrer@informatik.uni-leipzig.de
+##                Joerg Puehrer, puehrer@informatik.uni-leipzig.de
+##                Hannes Strass, strass@informatik.uni-leipzig.de
+##
 ## This file is part of diamond.
 ##
 ## diamond is free software: you can redistribute it and/or modify
@@ -33,7 +35,7 @@ import lib.tools.formulatree as ft
 import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
 import lib.tools.utils as util
 
-version='0.14'
+version='0.15'
 
 # default variables
 encdir = "lib"
@@ -51,6 +53,7 @@ enc = dict(
     adm = "admissible.lp ",
     base = "base.lp ",
     cf = "cf.lp ",
+    cfi = "cfi.lp ",
     cmp = "complete.lp ",
     grd = "grounded.lp ",
     model = "model.lp ",
@@ -102,7 +105,8 @@ def initvars(cfgfile):
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
-#    parser.add_argument('-cf', '--conflict-free', help='compute the conflict free sets', action='store_true', dest='cf')
+    parser.add_argument('-cf', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
+    parser.add_argument('-n', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
     parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
     parser.add_argument('-g', '--grounded', help='compute the grounded model', action='store_true', dest='grounded')
@@ -183,13 +187,12 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
-    # if args.cf or args.all:
-    #     print("==============================")
-    #     print("conflict free sets:")
-    #     sys.stdout.flush()
-    #     os.system("echo '#hide.#show in/1.' > " + tmp.name)
-    #     os.system(gringo + " " + enc['base'] + enc['cf'] + instance + " " + tmp.name + claspstring)
-        
+    if args.conflict_free or args.all:
+        print("==============================")
+        print("conflict-free interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring)
     if args.print_transform:
         os.system("cat " + instance)
     if args.model or args.all:
@@ -206,28 +209,34 @@ def main():
         os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + tmp.name + claspstring)
     if args.admissible or args.all:
         print("==============================")
-        print("admissible models:")
+        print("admissible interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring)
     if args.complete or args.all:
         print("==============================")
-        print("complete models:")
+        print("complete interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
     if args.grounded or args.all:
         print("==============================")
-        print("grounded model")
+        print("grounded interpretation")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
     if args.preferred:# or args.all:
         print("==============================")
-        print("preferred model:")
+        print("preferred interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
         os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+    if args.naive:
+        print("==============================")
+        print("naive interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | python " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
