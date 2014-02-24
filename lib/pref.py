@@ -22,6 +22,7 @@
 ##
 ## pref.py
 ##
+## Works with clasp 3.0.1
 
 import sys
 import json
@@ -35,12 +36,13 @@ def main():
         lines = lines + line
     claspresult = json.loads(lines)
     if claspresult['Result'] == "SATISFIABLE":
-        for answerset in claspresult['Witnesses']:
-            aset += 1
-            result = ''
-            for fact in answerset['Value']:
-                result = result + fact[:-1] + "," + str(aset) + "). "
-            print(result)
+        for call in claspresult['Call']:
+            for answerset in call['Witnesses']:
+                aset += 1
+                result = ''
+                for fact in answerset['Value']:
+                    result = result + fact[:-1] + "," + str(aset) + "). "
+                    print(result)
 
 if __name__ == "__main__":
     main()

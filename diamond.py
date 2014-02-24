@@ -62,8 +62,8 @@ enc = dict(
     opsm = "opsm.lp ",
     prf = "preferred.lp ",
     pref = "pref.lp ",
-    ileq = "ileq.lp ",
-    rleq = "rleq.lp ",
+    imax = "imax.lp ",
+    rmax = "rmax.lp ",
     prefpy = "pref.py ",
     prio_trans = "prio_trans.lp ",
     repr_change = "repr_change.lp",
@@ -112,6 +112,8 @@ def main():
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cf', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
     parser.add_argument('-n', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
+    parser.add_argument('-stg', '--stage', help='compute the stage interpretations', action='store_true', dest='stage')
+    parser.add_argument('-se', '--semi-model', help='compute the semi-model interpretations', action='store_true', dest='semimodel')
     parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
     parser.add_argument('-g', '--grounded', help='compute the grounded interpretation', action='store_true', dest='grounded')
@@ -235,13 +237,25 @@ def main():
         print("preferred interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + tmp.name + claspstring)
     if args.naive:
         print("==============================")
         print("naive interpretations:")
         sys.stdout.flush()
         os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['pref']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + tmp.name + claspstring)
+    if args.stage:
+        print("==============================")
+        print("stage interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + tmp.name + claspstring)
+    if args.semimodel:
+        print("==============================")
+        print("semi-model interpretations:")
+        sys.stdout.flush()
+        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + tmp.name + claspstring)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
