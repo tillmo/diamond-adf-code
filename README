@@ -7,7 +7,7 @@
  Requirements
 
  + Python (3.3.0)
- + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1), clingo (4.x)
+ + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1) or claspD-2 (Rev. 6814), clingo (4.x)
  + eclipse-prolog (6.1)
  + to use the CL-Script "diamond.py" a Unix-like operating system is needed
 
@@ -77,7 +77,7 @@ optional arguments:
 ==============
  Usage - without the diamond script
 
-To compute the models without the diamond script use the following commands (Note: those are Unix-Shell commands. For windows use the appropriate dual commands)
+To compute the models without the diamond script use the following commands (Note: those are Unix-Shell commands. For windows use the appropriate commands)
 
 +----------------+------------------------------------------------------+
 | semantics      | asp-encodings needed                                 | 
@@ -85,11 +85,9 @@ To compute the models without the diamond script use the following commands (Not
 | conflict-free  | base.lp, op.lp, cfi.lp                               |
 | model          | base.lp, cf.lp, model.p                              | 
 | stable model   | base.lp, cf.lp, model.lp, opsm.lp, 3KK.lp, stable.lp | 
-| grounded model | base.lp, op.lp, 3KK.lp grounded.lp                   | 
-| complete model | base.lp, op.lp, complete.lp                          | 
+| grounded       | base.lp, op.lp, 3KK.lp grounded.lp                   | 
+| complete       | base.lp, op.lp, complete.lp                          | 
 | admissible     | base.lp, op.lp, admissible.lp                        | 
-| preferred      | base.lp, op.lp, admissible.lp, preferred.lp          | 
-| naive          | base.lp, op.lp, cfi.lp, preferred.lp                 |
 +----------------+------------------------------------------------------+
 
 
@@ -101,8 +99,6 @@ To compute the models without the diamond script use the following commands (Not
  grounded model  gringo base.lp cf.lp 3KK.lp grounded.lp instance.lp | clasp
  complete model  gringo base.lp op.lp complete.lp instance.lp | clasp 0
  admissible      gringo base.lp op.lp admissible.lp instance.lp | clasp 0
- naive           gringo --reify base.lp op.lp cfi.lp preferred.lp instance.lp | gringo - metasp/{meta.lp,metaD.lp,meta0.lp} <(echo "optimize(1,1,incl).") | claspD 0
- preferred       gringo --reify base.lp op.lp admissible.lp preferred.lp instance.lp | gringo - metasp/{meta.lp,metaD.lp,meta0.lp} <(echo "optimize(1,1,incl).") | claspD 0
 
 To transform an ADF from the propostional formula representation use
 eclipse -b transform.pl -e main -- <instance>
