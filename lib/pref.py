@@ -36,13 +36,12 @@ def main():
         lines = lines + line
     claspresult = json.loads(lines)
     if claspresult['Result'] == "SATISFIABLE":
-        for call in claspresult['Call']:
-            for answerset in call['Witnesses']:
-                aset += 1
-                result = ''
-                for fact in answerset['Value']:
-                    result = result + fact[:-1] + "," + str(aset) + "). "
-                    print(result)
+        for answerset in claspresult['Witnesses']:
+            aset += 1
+            result = ''
+            for fact in answerset['Value']:
+                result = result + fact[:-1] + "," + str(aset) + "). "
+                print(result)
 
 if __name__ == "__main__":
     main()
