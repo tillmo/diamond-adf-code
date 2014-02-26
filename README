@@ -16,9 +16,12 @@
 
  -) The newest version is available at https://sourceforge.net/projects/diamond-adf
  -) Extract the tar-ball to a directory
- -) At the first run of the diamond.py script a config file is created (at the specified location via the -cfg option or at ~/.diamond per default)
- -) If the required programs are not in the $PATH environment, set their locations in the configuration file
- -) If you use a newer gringo than 3.0.5 and want to compute preferred models, provide the location of 3.0.5 in the config-file as well
+ -) At the first run of the diamond.py script a config file is created (at the 
+    specified location via the -cfg option or at ~/.diamond per default)
+ -) If the required programs are not in the $PATH environment, set their locations 
+    in the configuration file
+ -) If you use a newer gringo than 3.0.5 and want to compute preferred models, provide 
+    the location of 3.0.5 in the config-file as well
 
 ==============
  Configuration
@@ -77,19 +80,19 @@ optional arguments:
 ==============
  Usage - without the diamond script
 
-To compute the models without the diamond script use the following commands (Note: those are Unix-Shell commands. For windows use the appropriate commands)
+To compute the models without the diamond script use the following commands 
+(Note: those are Unix-Shell commands. For windows use the appropriate commands.)
 
 +----------------+------------------------------------------------------+
 | semantics      | asp-encodings needed                                 | 
 +----------------+------------------------------------------------------+
 | conflict-free  | base.lp, op.lp, cfi.lp                               |
-| model          | base.lp, cf.lp, model.p                              | 
+| model          | base.lp, cf.lp, model.lp                             | 
 | stable model   | base.lp, cf.lp, model.lp, opsm.lp, 3KK.lp, stable.lp | 
 | grounded       | base.lp, op.lp, 3KK.lp grounded.lp                   | 
 | complete       | base.lp, op.lp, complete.lp                          | 
 | admissible     | base.lp, op.lp, admissible.lp                        | 
 +----------------+------------------------------------------------------+
-
 
  semantics       example call (BASH)
 
@@ -105,3 +108,18 @@ eclipse -b transform.pl -e main -- <instance>
 
 To transform an ADF from the prioritized representation use
 python transform.py <instance>
+
+For bipolar ADFs, use the predicates sup/2 and att/2 instead of l/2 to specify
+supporting and attacking links between statements; and ac/2 to specify
+acceptance formulas as in the input format of ADFsys.
+
+To compute the semantics of bipolar ADFs, use the following encodings:
+
++----------------+------------------------------------------------------+
+| semantics      | asp-encodings needed                                 | 
++----------------+------------------------------------------------------+
+| conflict-free  | base.lp, bop.lp, cfi.lp                              |
+| grounded       | base.lp, bop.lp, 3KK.lp grounded.lp                  | 
+| complete       | base.lp, bop.lp, complete.lp                         | 
+| admissible     | base.lp, bop.lp, admissible.lp                       | 
++----------------+------------------------------------------------------+
