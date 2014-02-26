@@ -118,8 +118,9 @@ To compute the semantics of bipolar ADFs, use the following encodings:
 +----------------+------------------------------------------------------+
 | semantics      | asp-encodings needed                                 | 
 +----------------+------------------------------------------------------+
-| conflict-free  | base.lp, bop.lp, cfi.lp                              |
-| grounded       | base.lp, bop.lp, 3KK.lp grounded.lp                  | 
-| complete       | base.lp, bop.lp, complete.lp                         | 
-| admissible     | base.lp, bop.lp, admissible.lp                       | 
+| conflict-free  | bop.lp, cfi.lp					|
+| grounded       | bop.lp, 3KK.lp grounded.lp				| 
+| complete       | bop.lp, complete.lp              	                | 
+| model          | bop.lp, complete.lp, twovalued.lp                    | 
+| admissible     | bop.lp, admissible.lp                       		| 
 +----------------+------------------------------------------------------+
