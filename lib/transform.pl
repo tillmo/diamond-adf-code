@@ -192,8 +192,10 @@ makeLinkFacts(S, [P|R], Stream) :-
 	writeFact(l(P,S), Stream),
 	makeLinkFacts(S, R, Stream).
 
-vocabulary(c(_), []).
+vocabulary(c(_), []) :-
+	!.
 vocabulary(neg(F), V) :-
+	!,
 	vocabulary(F, V).
 vocabulary(F, V) :-
 	F =.. [ Binary, G, H ],
@@ -202,11 +204,11 @@ vocabulary(F, V) :-
 	vocabulary(G, VG),
 	vocabulary(H, VH),
 	union(VG, VH, V).
-vocabulary(A, [A]) :-
-	atomic(A).
+vocabulary(A, [A]).
 
 binary(and).
 binary(or).
+binary(xor).
 binary(imp).
 binary(iff).
 
@@ -220,6 +222,12 @@ modelFor(or(F, _G), I) :-
 	modelFor(F, I).
 modelFor(or(_F, G), I) :-
 	modelFor(G, I).
+modelFor(xor(F, G), I) :-
+	modelFor(F, I),
+	\+ modelFor(G, I).
+modelFor(xor(F, G), I) :-
+	modelFor(G, I),
+	\+ modelFor(F, I).
 modelFor(imp(F, _G), I) :-
 	\+ modelFor(F, I).
 modelFor(imp(_F, G), I) :-
@@ -231,7 +239,6 @@ modelFor(iff(F,G), I) :-
 	\+ modelFor(F, I),
 	\+ modelFor(G, I).
 modelFor(A, I) :-
-	atomic(A),
 	member(A, I).
 
 error(List) :-
