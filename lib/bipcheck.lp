@@ -1,3 +1,26 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
+%%
+%% This file is part of diamond.
+%%
+%% diamond is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%%
+%% diamond is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%%
+%% You should have received a copy of the GNU General Public License
+%% along with diamond.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% bipcheck.lp
+%%% ---------------------------
 % splitting a formula into its subformulas
 subformula(X,F) :- ac(X,F),statement(X).
 subformula(X,F) :- subformula(X,and(F,_)).
@@ -25,8 +48,10 @@ atom(X) :- subformula(X), not noatom(X).
 atom(X) :- subformula(X), X=c(v).
 atom(X) :- subformula(X), X=c(f).
 
+% get the links between statements
 link(X,S) :- statement(S), atom(X), subformula(S,X), statement(X).
 
+% guess 2 interpretations and compute those which have only a truth value flip with respect to its parent
 {in(S,A,B,1)}:-statement(S), link(A,B), atom(S), subformula(B,S).
 {in(S,A,B,3)}:-statement(S), link(A,B), atom(S), subformula(B,S).
 :- in(S,S,B,1).
@@ -42,6 +67,7 @@ in(S,S,B,4) :- out(S,S,B,3).
 interp(C) :- in(_,_,_,C).
 interp(C) :- out(_,_,_,C).
 
+% compute whether the interpretations are models or not
 ismodel(X,A,B,C) :- atom(X), in(X,A,B,C).
 ismodel(c(v),A,B,C) :- atom(c(v)), link(A,B), interp(C).
 ismodel(neg(F),A,B,C) :- subformula(neg(F)), nomodel(F,A,B,C).
