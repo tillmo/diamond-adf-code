@@ -81,6 +81,8 @@ model(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), model(J, S, I, G).
 model(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), step(I), type(J), not model(J, S, I, F).
 model(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), model(J, S, I, F), model(J, S, I, G).
 model(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), step(I), type(J), not model(J, S, I, F), not model(J, S, I, G).
+model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), step(I), type(J), model(J, S, I, F), not model(J, S, I, G).
+model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), step(I), type(J), model(J, S, I, G), not model(J, S, I, F).
 
 % figure out what formulas are relevant for statement S:
 % obviously, its acceptance formula F and all of F's subformulas
@@ -96,6 +98,8 @@ relevant(S, F) :- relevant(S, imp(F,_)).
 relevant(S, F) :- relevant(S, imp(_,F)).
 relevant(S, F) :- relevant(S, iff(F,_)).
 relevant(S, F) :- relevant(S, iff(_,F)).
+relevant(S, F) :- relevant(S, xor(F,_)).
+relevant(S, F) :- relevant(S, xor(_,F)).
 
 % figure out whether step(I) is a fixpoint
 
