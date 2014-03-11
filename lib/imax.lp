@@ -34,7 +34,7 @@ notOUTileq(X, Y) :- cand(X), cand(Y), f(Z, X), not f(Z, Y).
 
 ileq(X, Y) :- cand(X), cand(Y), not notINileq(X, Y), not notOUTileq(X, Y).
 
-:- imax(X), ileq(X, Y), X != Y.
+:- imax(X), ileq(X, Y), not ileq(Y, X).
 
 t(Y) :- imax(X), t(Y, X).
 f(Y) :- imax(X), f(Y, X).

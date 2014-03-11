@@ -29,11 +29,11 @@ cand(X) :- u(_, X).
 
 1 { rmax(X) : cand(X) } 1.
 
-notUileq(X, Y) :- cand(X), cand(Y), u(Z, Y), not u(Z, X).
+not_rleq(X, Y) :- cand(X), cand(Y), u(Z, Y), not u(Z, X).
 
-rleq(X, Y) :- cand(X), cand(Y), not notUileq(X, Y).
+rleq(X, Y) :- cand(X), cand(Y), not not_rleq(X, Y).
 
-:- rmax(X), rleq(X, Y), X != Y.
+:- rmax(X), rleq(X, Y), not rleq(Y, X).
 
 t(Y) :- rmax(X), t(Y, X).
 f(Y) :- rmax(X), f(Y, X).
