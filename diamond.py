@@ -40,10 +40,6 @@ version='0.15'
 # default variables
 encdir = "lib"
 installdir = os.path.dirname(os.path.realpath(__file__))
-gringo = "gringo"
-gringo305 = "gringo"
-clasp = "clasp"
-claspD = "claspD"
 eclipse = "eclipse"
 clingo = "clingo"
 python = "python"
@@ -89,20 +85,12 @@ def initvars(cfgfile):
     if os.path.exists(cfgfile):
         config.read_file(open(cfgfile))
         installdir = getoptval(config,"Path","installdir",installdir)
-        gringo = getoptval(config,"Path","gringo",gringo)
-        gringo305 = getoptval(config,"Path","gringo305",gringo305)
-        clasp = getoptval(config,"Path","clasp",clasp)
-        claspD = getoptval(config,"Path","claspD",claspD)
         eclipse = getoptval(config,"Path","eclipse",eclipse)
         clingo = getoptval(config,"Path","clingo",clingo)
         python = getoptval(config,"Path","python",python)
     else: #config file does not exist - create one
         config.add_section("Path")
         config.set("Path","installdir",installdir)
-        config.set("Path","gringo", gringo)
-        config.set("Path","gringo305", gringo)
-        config.set("Path","clasp", clasp)
-        config.set("Path","claspD", claspD)
         config.set("Path","eclipse", eclipse)
         config.set("Path","clingo", clingo)
         config.set("Path","python", python)
@@ -135,7 +123,6 @@ def main():
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
-    claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
     clingo_options = " 0 2> /dev/null"
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])

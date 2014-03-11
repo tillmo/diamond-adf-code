@@ -7,7 +7,7 @@
  Requirements
 
  + Python (3.3.0)
- + gringo (3.x and 3.0.5), clasp (2.x), claspD (1.1) or claspD-2 (Rev. 6814), clingo (4.x)
+ + clingo (4.3.0)
  + eclipse-prolog (6.1)
  + to use the CL-Script "diamond.py" a Unix-like operating system is needed
 
@@ -20,8 +20,6 @@
     specified location via the -cfg option or at ~/.diamond per default)
  -) If the required programs are not in the $PATH environment, set their locations 
     in the configuration file
- -) If you use a newer gringo than 3.0.5 and want to compute preferred models, provide 
-    the location of 3.0.5 in the config-file as well
 
 ==============
  Configuration
@@ -29,12 +27,9 @@
 The default configuration file looks as follows:
 [Path]
 installdir = <location of the diamond.py script>
-gringo = gringo
-gringo305 = gringo
-clasp = clasp
-claspd = claspD
 eclipse = eclipse
 clingo = clingo
+python = python
 
 ==============
  Usage - with the diamond script (recommended)
@@ -96,12 +91,12 @@ To compute the models without the diamond script use the following commands
 
  semantics       example call (BASH)
 
- conflict-free   gringo base.lp op.lp cfi.lp instance.lp | clasp 0
- model           gringo base.lp cf.lp instance.lp | clasp 0
- stable model    gringo base.lp cf.lp model.lp opsm.lp 3KK.lp stable.lp instance.lp | clasp 0
- grounded model  gringo base.lp cf.lp 3KK.lp grounded.lp instance.lp | clasp
- complete model  gringo base.lp op.lp complete.lp instance.lp | clasp 0
- admissible      gringo base.lp op.lp admissible.lp instance.lp | clasp 0
+ conflict-free   clingo base.lp op.lp cfi.lp instance.lp show.lp 0
+ model           clingo base.lp cf.lp instance.lp show.lp 0
+ stable model    clingo base.lp cf.lp model.lp opsm.lp 3KK.lp stable.lp instance.lp show.lp 0
+ grounded model  clingo base.lp cf.lp 3KK.lp grounded.lp instance.lp show.lp 0
+ complete model  clingo base.lp op.lp complete.lp instance.lp show.lp 0
+ admissible      clingo base.lp op.lp admissible.lp instance.lp show.lp 0
 
 To transform an ADF from the propostional formula representation use
 eclipse -b transform.pl -e main -- <instance>
@@ -124,3 +119,6 @@ To compute the semantics of bipolar ADFs, use the following encodings:
 | model          | bop.lp, complete.lp, twovalued.lp                    | 
 | admissible     | bop.lp, admissible.lp                       		| 
 +----------------+------------------------------------------------------+
+
+There is also an efficient encoding of the model semantics that only needs
+the predicates s/1 and ac/2. Call "clingo fmodel.lp show.lp instance.lp 0".
