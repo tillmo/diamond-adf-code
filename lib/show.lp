@@ -22,7 +22,6 @@
 %% show.lp
 %% Defines what to hide and what to show.
 
-#hide.
 #show t/1.
 #show f/1.
 #show u/1.

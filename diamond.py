@@ -136,6 +136,7 @@ def main():
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
     claspstring = " 2> /dev/null | " + clasp + " 0 2> /dev/null"
+    clingo_options = " 0 2> /dev/null"
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
     if args.version:
@@ -199,54 +200,54 @@ def main():
         print("==============================")
         print("conflict-free interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options)
     if args.print_transform:
         os.system("cat " + instance)
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + enc['show'] + clingo_options)
     if args.smodel or args.all:
         print("==============================")
         print("stable models:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + enc['show'] + clingo_options)
     if args.admissible or args.all:
         print("==============================")
         print("admissible interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options)
     if args.complete or args.all:
         print("==============================")
         print("complete interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + enc['show'] + clingo_options)
     if args.grounded or args.all:
         print("==============================")
         print("grounded interpretation")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + enc['show'] + clingo_options)
     if args.preferred:
         print("==============================")
         print("preferred interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['imax']  + enc['show'] + clingo_options)
     if args.naive:
         print("==============================")
         print("naive interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['imax']  + enc['show'] + clingo_options)
     if args.stage:
         print("==============================")
         print("stage interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['rmax']  + enc['show'] + clingo_options)
     if args.semimodel:
         print("==============================")
         print("semi-model interpretations:")
         sys.stdout.flush()
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + enc['show'] + claspstring)
+        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['rmax']  + enc['show'] + clingo_options)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
