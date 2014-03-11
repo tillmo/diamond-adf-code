@@ -29,6 +29,7 @@
 s(S) :- statement(S).
 
 % guess a two-valued interpretation
+
 {t(S)} :- s(S).
 
 % figure out whether various interpretations are models for acceptance formulas
@@ -46,8 +47,8 @@ true(iff(F,G)) :- relevant(iff(F,G)), not true(F), not true(G).
 true(xor(F,G)) :- relevant(xor(F,G)), true(F), not true(G).
 true(xor(F,G)) :- relevant(xor(F,G)), true(G), not true(F).
 
-% figure out what formulas are relevant for statement S:
-% obviously, its acceptance formula F and all of F's subformulas
+% figure out what formulas are relevant
+% obviously, all acceptance formulas and their subformulas
 
 relevant(F) :- ac(S, F).
 
@@ -73,5 +74,3 @@ relevant(F) :- relevant(xor(_,F)).
 % all non-true statements are false
 
 f(S) :- s(S), not t(S).
-
-#show t/1. #show f/1.

@@ -26,14 +26,15 @@
 % ---------------------------
 
 step(0).
-{in(S,0):s(S)}.
-{out(S,0):s(S)}.
 
-:- in(S,0), out(S,0).
+{t(S,0):s(S)}.
+{f(S,0):s(S)}.
 
-in(S) :- in(S,0).
-out(S) :- out(S,0).
-udec(S) :- s(S), not in(S), not out(S).
+:- t(S,0), f(S,0).
 
-:- in(S), unsat(S,0).
-:- out(S), not unsat(S,0).
+t(S) :- t(S,0).
+f(S) :- f(S,0).
+u(S) :- s(S), not t(S), not f(S).
+
+:- t(S), unsat(S,0).
+:- f(S), not unsat(S,0).

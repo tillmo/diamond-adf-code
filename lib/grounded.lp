@@ -21,10 +21,10 @@
 %%
 %% grounded.lp
 %%% ---------------------------
-% compute the grounded semantics (former wf)
+% compute the grounded semantics
 % requires base op 3KK
 % ---------------------------
 
-in(S) :- fp(I), in(S,I).
-out(S) :- fp(I), out(S,I).
-udec(S) :- fp(I), s(S), not in(S), not out(S).
+t(S) :- fp(I), t(S,I).
+f(S) :- fp(I), f(S,I).
+u(S) :- fp(I), s(S), not t(S), not f(S).

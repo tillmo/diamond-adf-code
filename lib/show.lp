@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%% Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
+%% Copyright 2014 Hannes Strass, strass@informatik.uni-leipzig.de
 %%
 %% This file is part of diamond.
 %%
@@ -19,15 +19,10 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-%% preferred.lp
-%%
-% ---------------------------
-% compute preferred interpretations
-% requires base op admissible
-% ---------------------------
+%% show.lp
+%% Defines what to hide and what to show.
 
-not_t(S):- s(S), not t(S).
-not_f(S):- s(S), not f(S).
-
-#minimize [not_t(S)].
-#minimize [not_f(S)].
+#hide.
+#show t/1.
+#show f/1.
+#show u/1.

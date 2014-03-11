@@ -22,19 +22,20 @@
 %% imax.lp
 %% computing information-maximal interpretations
 %%
-cand(X) :- in(_, X).
-cand(X) :- out(_, X).
-cand(X) :- udec(_, X).
+
+cand(X) :- t(_, X).
+cand(X) :- f(_, X).
+cand(X) :- u(_, X).
 
 1 { imax(X) : cand(X) } 1.
 
-notINileq(X, Y) :- cand(X), cand(Y), in(Z, X), not in(Z, Y).
-notOUTileq(X, Y) :- cand(X), cand(Y), out(Z, X), not out(Z, Y).
+notINileq(X, Y) :- cand(X), cand(Y), t(Z, X), not t(Z, Y).
+notOUTileq(X, Y) :- cand(X), cand(Y), f(Z, X), not f(Z, Y).
 
 ileq(X, Y) :- cand(X), cand(Y), not notINileq(X, Y), not notOUTileq(X, Y).
 
 :- imax(X), ileq(X, Y), X != Y.
 
-in(Y) :- imax(X), in(Y, X).
-out(Y) :- imax(X), out(Y, X).
-udec(Y) :- imax(X), udec(Y, X).
+t(Y) :- imax(X), t(Y, X).
+f(Y) :- imax(X), f(Y, X).
+u(Y) :- imax(X), u(Y, X).

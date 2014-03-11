@@ -27,5 +27,6 @@
 % requires base cf
 % ---------------------------
 
-:- s(S), not in(S), ismodel(S).
-out(S) :- s(S), not in(S).
+:- s(S), not t(S), ismodel(S).
+
+f(S) :- s(S), not t(S).

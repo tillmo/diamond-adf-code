@@ -52,23 +52,23 @@ atom(X) :- subformula(X), X=c(f).
 link(X,S) :- statement(S), atom(X), subformula(S,X), statement(X).
 
 % guess 2 interpretations and compute those which have only a truth value flip with respect to its parent
-{in(S,A,B,1)}:-statement(S), link(A,B), atom(S), subformula(B,S).
-{in(S,A,B,3)}:-statement(S), link(A,B), atom(S), subformula(B,S).
-:- in(S,S,B,1).
-:- in(S,S,B,3).
-out(S,A,B,1) :- not in(S,A,B,1), statement(S), link(A,B).
-out(S,A,B,3) :- not in(S,A,B,3), statement(S), link(A,B).
-in(S,A,B,2) :- in(S,A,B,1).
-in(S,A,B,4) :- in(S,A,B,3).
-out(S,A,B,2) :- out(S,A,B,1), S != A.
-out(S,A,B,4) :- out(S,A,B,3), S != A.
-in(S,S,B,2) :- out(S,S,B,1).
-in(S,S,B,4) :- out(S,S,B,3).
-interp(C) :- in(_,_,_,C).
-interp(C) :- out(_,_,_,C).
+{t(S,A,B,1)}:-statement(S), link(A,B), atom(S), subformula(B,S).
+{t(S,A,B,3)}:-statement(S), link(A,B), atom(S), subformula(B,S).
+:- t(S,S,B,1).
+:- t(S,S,B,3).
+f(S,A,B,1) :- not t(S,A,B,1), statement(S), link(A,B).
+f(S,A,B,3) :- not t(S,A,B,3), statement(S), link(A,B).
+t(S,A,B,2) :- t(S,A,B,1).
+t(S,A,B,4) :- t(S,A,B,3).
+f(S,A,B,2) :- f(S,A,B,1), S != A.
+f(S,A,B,4) :- f(S,A,B,3), S != A.
+t(S,S,B,2) :- f(S,S,B,1).
+t(S,S,B,4) :- f(S,S,B,3).
+interp(C) :- t(_,_,_,C).
+interp(C) :- f(_,_,_,C).
 
 % compute whether the interpretations are models or not
-ismodel(X,A,B,C) :- atom(X), in(X,A,B,C).
+ismodel(X,A,B,C) :- atom(X), t(X,A,B,C).
 ismodel(c(v),A,B,C) :- atom(c(v)), link(A,B), interp(C).
 ismodel(neg(F),A,B,C) :- subformula(neg(F)), nomodel(F,A,B,C).
 ismodel(and(F1,F2),A,B,C) :- subformula(and(F1,F2)), ismodel((F1;F2),A,B,C).
@@ -81,7 +81,7 @@ ismodel(imp(F1,F2),A,B,C) :- subformula(imp(F1,F2)), ismodel((F1;F2),A,B,C).
 ismodel(iff(F1,F2),A,B,C) :- subformula(iff(F1,F2)), ismodel((F1;F2),A,B,C).
 ismodel(iff(F1,F2),A,B,C) :- subformula(iff(F1,F2)), nomodel((F1;F2),A,B,C).
 
-nomodel(X,A,B,C) :- atom(X), out(X,A,B,C).
+nomodel(X,A,B,C) :- atom(X), f(X,A,B,C).
 nomodel(c(f),A,B,C) :- atom(c(f)), link(A,B), interp(C).
 nomodel(neg(F),A,B,C) :- subformula(neg(F)), ismodel(F,A,B,C).
 nomodel(and(F1,F2),A,B,C) :- subformula(and(F1,F2)), nomodel(F1,A,B,C).
@@ -93,10 +93,10 @@ nomodel(imp(F1,F2),A,B,C) :- subformula(imp(F1,F2)), ismodel(F1,A,B,C), nomodel(
 nomodel(iff(F1,F2),A,B,C) :- subformula(iff(F1,F2)), nomodel(F1,A,B,C), ismodel(F2,A,B,C).
 nomodel(iff(F1,F2),A,B,C) :- subformula(iff(F1,F2)), nomodel(F2,A,B,C), ismodel(F1,A,B,C).
 
-%bipolar counter-example
-bip_ce(A,B) :- link(A,B), ac(B,F), ismodel(F,A,B,1), nomodel(F,A,B,2), nomodel(F,A,B,3), ismodel(F,A,B,4).
-bip_ce2 :- bip_ce(A,B).
+%bipolar counter-example: dependent link
+dependent(A,B) :- link(A,B), ac(B,F), ismodel(F,A,B,1), nomodel(F,A,B,2), nomodel(F,A,B,3), ismodel(F,A,B,4).
+
+bip_ce2 :- dependent(A,B).
 :- not bip_ce2.
 
-
-#show bip_ce/2.
+#show dependent/2.

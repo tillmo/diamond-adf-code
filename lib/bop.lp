@@ -28,8 +28,8 @@
 %
 % usage:
 % define predicate step(I), where I is an integer
-% define in(S,I) for each S which is already labeled as t
-% define out(S,I) for each S which is already labeled as f
+% define t(S,I) for each S which is already labeled as t
+% define f(S,I) for each S which is already labeled as f
 % valid(S,I) represents all S which are labeled t by the operator
 % unsat(S,I) represents all S which are labeled f by the operator
 % if the input is a fixpoint for the operator, fp(I) is set, nofp(I) otherwise.
@@ -42,7 +42,7 @@ s(S) :- statement(S).
 l(A, B) :- sup(A, B).
 l(A, B) :- att(A, B).
 
-up(P, S, I) :- l(P, S), step(I), not in(P, I), not out(P, I).
+up(P, S, I) :- l(P, S), step(I), not t(P, I), not f(P, I).
 
 psup(P, S, I) :- sup(P, S), up(P, S, I).
 patt(P, S, I) :- att(P, S), up(P, S, I).
@@ -61,18 +61,18 @@ valid(S,I) :- ac(S, F), model(valid, S, I, F).
 
 model(unsat, S, I, P) :- psup(P, S, I).
 
-unsat(S,I) :- ac(S, F), s(S), step(I), not model(unsat, S, I, F).
+unsat(S,I) :- ac(S, F), step(I), not model(unsat, S, I, F).
 
 % figure out whether various interpretations are models for acceptance formulas
 % model(J, S, I, F) means that the two-valued interpretation at step I 
-% where S is considered true if in(S, I) holds and false otherwise
+% where S is considered true if t(S, I) holds and false otherwise
 % is a model for formula F, where J is a type among {valid, unsat}
 
 type(valid).
 type(unsat).
 
 model(J, S, I, c(v)) :- relevant(S, c(v)), step(I), type(J).
-model(J, S, I, P) :- l(P, S), in(P, I), type(J).
+model(J, S, I, P) :- l(P, S), t(P, I), type(J).
 model(J, S, I, neg(F)) :- relevant(S, neg(F)), step(I), type(J), not model(J, S, I, F).
 model(J, S, I, and(F,G)) :- relevant(S, and(F,G)), model(J, S, I, F), model(J, S, I, G).
 model(J, S, I, or(F,G)) :- relevant(S, or(F,G)), model(J, S, I, F).
@@ -103,8 +103,8 @@ relevant(S, F) :- relevant(S, xor(_,F)).
 
 % figure out whether step(I) is a fixpoint
 
-nofp(I) :- in(X,I), not valid(X,I), step(I).
-nofp(I) :- valid(X,I), not in(X,I), step(I).
-nofp(I) :- out(X,I), not unsat(X,I), step(I).
-nofp(I) :- unsat(X,I), not out(X,I), step(I).
+nofp(I) :- t(X,I), not valid(X,I), step(I).
+nofp(I) :- valid(X,I), not t(X,I), step(I).
+nofp(I) :- f(X,I), not unsat(X,I), step(I).
+nofp(I) :- unsat(X,I), not f(X,I), step(I).
 fp(I) :- not nofp(I), step(I).

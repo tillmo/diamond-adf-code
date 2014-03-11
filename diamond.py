@@ -57,16 +57,17 @@ enc = dict(
     cfi = "cfi.lp ",
     cmp = "complete.lp ",
     grd = "grounded.lp ",
+    imax = "imax.lp ",
     model = "model.lp ",
     op = "op.lp ",
     opsm = "opsm.lp ",
     prf = "preferred.lp ",
     pref = "pref.lp ",
-    imax = "imax.lp ",
-    rmax = "rmax.lp ",
     prefpy = "pref.py ",
     prio_trans = "prio_trans.lp ",
     repr_change = "repr_change.lp",
+    rmax = "rmax.lp ",
+    show = "show.lp",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
     transformpy = "transform.py ",
@@ -198,64 +199,54 @@ def main():
         print("==============================")
         print("conflict-free interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring)
     if args.print_transform:
         os.system("cat " + instance)
     if args.model or args.all:
         print("==============================")
         print("two-valued models")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + enc['show'] + claspstring)
     if args.smodel or args.all:
         print("==============================")
         print("stable models:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + enc['show'] + claspstring)
     if args.admissible or args.all:
         print("==============================")
         print("admissible interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring)
     if args.complete or args.all:
         print("==============================")
         print("complete interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + enc['show'] + claspstring)
     if args.grounded or args.all:
         print("==============================")
         print("grounded interpretation")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + tmp.name + claspstring)
-    if args.preferred:# or args.all:
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + enc['show'] + claspstring)
+    if args.preferred:
         print("==============================")
         print("preferred interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + enc['show'] + claspstring)
     if args.naive:
         print("==============================")
         print("naive interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['imax']  + enc['show'] + claspstring)
     if args.stage:
         print("==============================")
         print("stage interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + enc['show'] + claspstring)
     if args.semimodel:
         print("==============================")
         print("semi-model interpretations:")
         sys.stdout.flush()
-        os.system("echo '#hide.#show in/1.#show out/1.#show udec/1.' > " + tmp.name)
-        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + tmp.name + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + tmp.name + claspstring)
+        os.system(gringo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + claspstring + " --outf=2 | " + python + " " + enc['prefpy']  + " | gringo - " + enc['rmax']  + enc['show'] + claspstring)
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":

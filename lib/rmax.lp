@@ -23,23 +23,23 @@
 %% computing range-maximal (undefined-minimal) interpretations
 %%
 
-cand(X) :- in(_, X).
-cand(X) :- out(_, X).
-cand(X) :- udec(_, X).
+cand(X) :- t(_, X).
+cand(X) :- f(_, X).
+cand(X) :- u(_, X).
 
 1 { rmax(X) : cand(X) } 1.
 
-notINileq(X, Y) :- cand(X), cand(Y), in(Z, X), not in(Z, Y).
-notOUTileq(X, Y) :- cand(X), cand(Y), out(Z, X), not out(Z, Y).
+notINileq(X, Y) :- cand(X), cand(Y), t(Z, X), not t(Z, Y).
+notOUTileq(X, Y) :- cand(X), cand(Y), f(Z, X), not f(Z, Y).
 
 ileq(X, Y) :- cand(X), cand(Y), not notINileq(X, Y), not notOUTileq(X, Y).
 
-notUileq(X, Y) :- cand(X), cand(Y), udec(Z, Y), not udec(Z, X).
+notUileq(X, Y) :- cand(X), cand(Y), u(Z, Y), not u(Z, X).
 
 rleq(X, Y) :- ileq(X, Y), not notUileq(X, Y).
 
 :- rmax(X), rleq(X, Y), X != Y.
 
-in(Y) :- rmax(X), in(Y, X).
-out(Y) :- rmax(X), out(Y, X).
-udec(Y) :- rmax(X), udec(Y, X).
+t(Y) :- rmax(X), t(Y, X).
+f(Y) :- rmax(X), f(Y, X).
+u(Y) :- rmax(X), u(Y, X).

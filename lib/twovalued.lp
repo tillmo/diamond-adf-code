@@ -26,4 +26,4 @@
 
 s(S) :- statement(S).
 
-:- s(S), not in(S), not out(S).
+:- s(S), not t(S), not f(S).
