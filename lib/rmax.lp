@@ -29,14 +29,9 @@ cand(X) :- u(_, X).
 
 1 { rmax(X) : cand(X) } 1.
 
-notINileq(X, Y) :- cand(X), cand(Y), t(Z, X), not t(Z, Y).
-notOUTileq(X, Y) :- cand(X), cand(Y), f(Z, X), not f(Z, Y).
-
-ileq(X, Y) :- cand(X), cand(Y), not notINileq(X, Y), not notOUTileq(X, Y).
-
 notUileq(X, Y) :- cand(X), cand(Y), u(Z, Y), not u(Z, X).
 
-rleq(X, Y) :- ileq(X, Y), not notUileq(X, Y).
+rleq(X, Y) :- cand(X), cand(Y), not notUileq(X, Y).
 
 :- rmax(X), rleq(X, Y), X != Y.
 
