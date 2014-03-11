@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 ################################################################################
 ##
-## Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
-##                Joerg Puehrer, puehrer@informatik.uni-leipzig.de
-##                Hannes Strass, strass@informatik.uni-leipzig.de
+## Copyright 2013, 2014 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
+##                      Joerg Puehrer, puehrer@informatik.uni-leipzig.de
+##                      Hannes Strass, strass@informatik.uni-leipzig.de
 ##
 ## This file is part of diamond.
 ##
@@ -63,7 +63,7 @@ enc = dict(
     prio_trans = "prio_trans.lp ",
     repr_change = "repr_change.lp",
     rmax = "rmax.lp ",
-    show = "show.lp",
+    show = "show.lp ",
     stb = "stable.lp ",
     transformpl = "transform.pl ",
     transformpy = "transform.py ",
@@ -123,7 +123,7 @@ def main():
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
-    clingo_options = " 0 2> /dev/null"
+    clingo_options = " 0 2> /dev/null" # optionally --verbose=0
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
     if args.version:
@@ -216,25 +216,43 @@ def main():
         sys.stdout.flush()
         os.system(clingo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + enc['show'] + clingo_options)
     if args.preferred:
-        print("==============================")
-        print("preferred interpretations:")
         sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['imax']  + enc['show'] + clingo_options)
+        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
+        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
+        clingo1.stdout.close()
+        clingo2 = sp.Popen([clingo + " " + enc['imax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
+        python2.stdout.close()
+        print(clingo2.communicate()[0])
     if args.naive:
         print("==============================")
         print("naive interpretations:")
         sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['imax']  + enc['show'] + clingo_options)
+        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
+        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
+        clingo1.stdout.close()
+        clingo2 = sp.Popen([clingo + " " + enc['imax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
+        python2.stdout.close()
+        print(clingo2.communicate()[0])
     if args.stage:
         print("==============================")
         print("stage interpretations:")
         sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['rmax']  + enc['show'] + clingo_options)
+        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
+        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
+        clingo1.stdout.close()
+        clingo2 = sp.Popen([clingo + " " + enc['rmax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
+        python2.stdout.close()
+        print(clingo2.communicate()[0])
     if args.semimodel:
         print("==============================")
         print("semi-model interpretations:")
         sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2 | " + python + " " + enc['prefpy']  + " | " + clingo + " - " + enc['rmax']  + enc['show'] + clingo_options)
+        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
+        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
+        clingo1.stdout.close()
+        clingo2 = sp.Popen([clingo + " " + enc['rmax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
+        python2.stdout.close()
+        print(clingo2.communicate()[0])
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
