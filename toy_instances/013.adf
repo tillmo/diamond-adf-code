@@ -1,0 +1,7 @@
+s(a).
+s(b).
+s(c).
+
+ac(a, neg(iff(b,c))).
+ac(b, b).
+ac(c, c).

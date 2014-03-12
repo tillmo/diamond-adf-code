@@ -78,8 +78,6 @@ enc = dict(
 # files to delete
 filesToDelete=[]
 
-bipolar=False
-
 def getoptval(config,section,option,default):
     if config.has_option(section,option):
         return config.get(section,option)

@@ -1,0 +1,14 @@
+s(a).
+s(b).
+s(c).
+s(d).
+
+sup(a, c).
+sup(b, c).
+sup(b, b).
+att(b, d).
+
+ac(a, c(v)).
+ac(b, b).
+ac(c, and(a,b)).
+ac(d, neg(b)).
