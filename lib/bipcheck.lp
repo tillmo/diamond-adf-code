@@ -22,7 +22,7 @@
 %% bipcheck.lp
 %%% ---------------------------
 % splitting a formula into its subformulas
-subformula(X,F) :- ac(X,F),statement(X).
+subformula(X,F) :- ac(X,F),s(X).
 subformula(X,F) :- subformula(X,and(F,_)).
 subformula(X,F) :- subformula(X,and(_,F)).
 subformula(X,F) :- subformula(X,or(_,F)).
@@ -49,15 +49,15 @@ atom(X) :- subformula(X), X=c(v).
 atom(X) :- subformula(X), X=c(f).
 
 % get the links between statements
-link(X,S) :- statement(S), atom(X), subformula(S,X), statement(X).
+link(X,S) :- s(S), atom(X), subformula(S,X), s(X).
 
 % guess 2 interpretations and compute those which have only a truth value flip with respect to its parent
-{t(S,A,B,1)}:-statement(S), link(A,B), atom(S), subformula(B,S).
-{t(S,A,B,3)}:-statement(S), link(A,B), atom(S), subformula(B,S).
+{t(S,A,B,1)}:-s(S), link(A,B), atom(S), subformula(B,S).
+{t(S,A,B,3)}:-s(S), link(A,B), atom(S), subformula(B,S).
 :- t(S,S,B,1).
 :- t(S,S,B,3).
-f(S,A,B,1) :- not t(S,A,B,1), statement(S), link(A,B).
-f(S,A,B,3) :- not t(S,A,B,3), statement(S), link(A,B).
+f(S,A,B,1) :- not t(S,A,B,1), s(S), link(A,B).
+f(S,A,B,3) :- not t(S,A,B,3), s(S), link(A,B).
 t(S,A,B,2) :- t(S,A,B,1).
 t(S,A,B,4) :- t(S,A,B,3).
 f(S,A,B,2) :- f(S,A,B,1), S != A.

@@ -24,7 +24,7 @@
 % ---------------------------
 % Definition of the ultimate characteristic operator for bipolar ADFs
 % operates directly on acceptance conditions
-% requires definition of statement/1 or s/1, ac/2, sup/2, att/2
+% requires definition of s/1, ac/2, sup/2, att/2
 %
 % usage:
 % define predicate step(I), where I is an integer
@@ -34,8 +34,6 @@
 % unsat(S,I) represents all S which are labeled f by the operator
 % if the input is a fixpoint for the operator, fp(I) is set, nofp(I) otherwise.
 % ---------------------------
-
-s(S) :- statement(S).
 
 % get the undecided parents P of each statement S
 

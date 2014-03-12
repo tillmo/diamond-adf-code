@@ -27,7 +27,7 @@ def formtree2aspinput(ft):
     statements = ''
     acs = ''
     for stmt in ft:
-        statements += 'statement(' + stmt + ').\n'
+        statements += 's(' + stmt + ').\n'
         acs += 'ac(' + stmt + ',' + formula2ac(ft[stmt]) + ').\n'
     return statements + acs
 

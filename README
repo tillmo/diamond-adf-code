@@ -8,7 +8,7 @@
 
  + Python (3.3.0)
  + clingo (4.3.0)
- + eclipse-prolog (6.1)
+ + eclipse-prolog (6.1) (optional)
  + to use the CL-Script "diamond.py" a Unix-like operating system is needed
 
 ==============
@@ -17,9 +17,13 @@
  -) The newest version is available at https://sourceforge.net/projects/diamond-adf
  -) Extract the tar-ball to a directory
  -) At the first run of the diamond.py script a config file is created (at the 
-    specified location via the -cfg option or at ~/.diamond per default)
+    specified location via the -c option or at ~/.diamond per default)
  -) If the required programs are not in the $PATH environment, set their locations 
     in the configuration file
+ -) In the configuration file, you can indicate how ADFs in propositional formula
+    representation should be transformed to the extensional representation:
+    Either via ASP, in which case transform = "asp", or via ECLiPSe Prolog, then
+    transform = "eclipse".
 
 ==============
  Configuration
@@ -30,12 +34,34 @@ installdir = <location of the diamond.py script>
 eclipse = eclipse
 clingo = clingo
 python = python
+[Preferences]
+transform = "asp"
+
+==============
+ Instances
+ ADFs are represented by text files with a special syntax.
+ Statements are declared via predicate s/1.
+ For acceptance functions, several possibilities exist.
+
+ 1. Propositional formulas: file names like "instance.adf"
+    Acceptance formulas are declared via predicate ac/2.
+    Links are declared via predicate l/2.
+
+ 2. Bipolar ADFs: file names like "instance.badf"
+    Acceptance formulas are declared via predicate ac/2.
+    Supporting links are declared via predicate sup/2.
+    Attacking links are declared via predicate att/2.
+
+ 3. Functional representation: any other file name
+
+ Diamond can also be told the input format via command line options, see below.
+ If neither is specified, then diamond will complain, but assume case 3.
 
 ==============
  Usage - with the diamond script (recommended)
 
 usage: diamond.py [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
-                  [-adm] [-prf] [-t] [-c CFGFILE] [-pf | -pfe | -pfr] [-all]
+                  [-adm] [-prf] [-all] [-b | -pf | -fr | -pr] [-c CFGFILE]
                   [--version]
                   instance
 
@@ -46,8 +72,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -cfi, --conflict-free
-                        compute the conflict-free interpretations
+  -cfi, --conflict-free compute the conflict-free interpretations
   -nai, --naive         compute the naive interpretations
   -stg, --stage         compute the stage interpretations
   -sem, --semi-model    compute the semi-model interpretations
@@ -57,17 +82,18 @@ optional arguments:
   -com, --complete      compute the complete interpretations
   -adm, --admissible    compute the admissible interpretations
   -prf, --preferred     compute the preferred interpretations
-  -t, --transform       print the transformed adf to stdout
-  -c CFGFILE            specify a config-file
-  -pf, --transform_pform
-                        acceptance functions are given as propositional
-                        formulas (translation using ASP)
-  -pfe, --transform_pform_eclipse
-                        acceptance functions are given as propositional
-                        formulas (translation using Eclipse Prolog)
-  -pfr, --transform_prio
-                        transform a prioritized ADF before the computation
   -all, --all           compute interpretations for all semantics
+  -b, --bipolar         acceptance functions are given as propositional
+                        formulas, attacking and supporting links are specified
+                        (implies -pf)
+  -pf, --propositional-formulas
+                        acceptance functions are given as propositional
+                        formulas
+  -fr, --functional-representation
+                        acceptance functions are given in extensional form
+  -pr, --priorities     acceptance functions are given as preferences among
+                        statements
+  -c CFGFILE            specify a config-file
   --version             prints the current version
 
 ==============

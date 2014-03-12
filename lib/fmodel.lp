@@ -23,10 +23,8 @@
 %%
 % ---------------------------
 % Definition of the two-valued model semantics directly on acceptance formulas
-% requires definition of statement/1 or s/1, and ac/2
+% requires definition of s/1 and ac/2
 % provides definition of t/1 and f/1
-
-s(S) :- statement(S).
 
 % guess a two-valued interpretation
 
