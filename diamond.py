@@ -164,7 +164,6 @@ def main():
     group.add_argument('-fr','--functional-representation', help='acceptance functions are given in extensional form', action='store_true', dest='extensionalform')
     group.add_argument('-pr','--priorities', help='acceptance functions are given as preferences among statements', action='store_true', dest='transformprio')
     parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
-#    parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
     parser.add_argument('--version', help='prints the current version', action='version', version='%(prog)s '+ version)
     parser.add_argument('-v','--verbose', choices=['0','1','2','json','debug'], dest='verbosity', default='1', help='Control the verbosity of DIAMOND')
     args=parser.parse_args()
@@ -185,10 +184,6 @@ def main():
         model_encoding=[enc['fmodel']]
     else:
         model_encoding=[enc['base'],enc['cf'],enc['model']]
-    if args.version:
-        print("==============================")
-        print("DIAMOND version " + version)
-        print("==============================")
     clingo_options = ['0']
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
