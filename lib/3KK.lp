@@ -26,7 +26,7 @@
 % requires base op(sm)
 % ---------------------------
 
-maxit(I) :- I:={s(S)}.
+maxit(I) :- I={s(S)}.
 step(0).
 
 t(S,I+1) :- valid(S,I).

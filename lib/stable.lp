@@ -27,7 +27,7 @@
 % ---------------------------
 
 s_r(S) :- t(S).
-l_r(X,S):- l(X,S), t(X;S).
+l_r(X,S):- l(X,S), t(X), t(S).
 cir(S,J):- ci(S,J,X), not l_r(X,S).
 cor(S,J):- co(S,J,X), not l_r(X,S).
 ci_r(S,J,X) :- ci(S,J,X), not cir(S,J).

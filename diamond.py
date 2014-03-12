@@ -24,6 +24,7 @@
 ##
 ## diamond.py
 ##
+
 import argparse
 import configparser as cp
 import os
@@ -32,7 +33,7 @@ import time
 import sys
 import subprocess as sp
 import lib.tools.formulatree as ft
-import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
+#import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
 import lib.tools.utils as util
 
 version='0.15'
@@ -99,21 +100,21 @@ def initvars(cfgfile):
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
-    parser.add_argument('-cf', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
-    parser.add_argument('-n', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
+    parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
+    parser.add_argument('-nai', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
     parser.add_argument('-stg', '--stage', help='compute the stage interpretations', action='store_true', dest='stage')
-    parser.add_argument('-se', '--semi-model', help='compute the semi-model interpretations', action='store_true', dest='semimodel')
-    parser.add_argument('-m', '--model', help='compute the two-valued models', action='store_true', dest='model')
-    parser.add_argument('-sm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
-    parser.add_argument('-g', '--grounded', help='compute the grounded interpretation', action='store_true', dest='grounded')
-    parser.add_argument('-c', '--complete', help='compute the complete interpretations', action='store_true', dest='complete')
-    parser.add_argument('-a', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
-    parser.add_argument('-p', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
+    parser.add_argument('-sem', '--semi-model', help='compute the semi-model interpretations', action='store_true', dest='semimodel')
+    parser.add_argument('-mod', '--model', help='compute the two-valued models', action='store_true', dest='model')
+    parser.add_argument('-stm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
+    parser.add_argument('-grd', '--grounded', help='compute the grounded interpretation', action='store_true', dest='grounded')
+    parser.add_argument('-com', '--complete', help='compute the complete interpretations', action='store_true', dest='complete')
+    parser.add_argument('-adm', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
+    parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
-    parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
-    parser.add_argument('-cfg', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
+    #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
+    parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP) (recommended)', action='store_true', dest='transformpform')
+    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
     group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
     group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
@@ -130,14 +131,14 @@ def main():
         print("==============================")
         print("DIAMOND version " + version)
         print("==============================")
-    if args.adf2dadf_adm:
-        print("==============================")
-        print("transforming adf 2 dadf ...")
-        with sp.Popen(clingo + " " + enc['formulatree'] + " " + instance + " 0 --outf=2", shell=True, stdout=sp.PIPE) as p:
-            out =''
-            for byteLine in p.stdout:
-               out  = out + byteLine.decode(sys.stdout.encoding).strip()
-            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
+#    if args.adf2dadf_adm:
+#        print("==============================")
+#        print("transforming adf 2 dadf ...")
+#        with sp.Popen(clingo + " " + enc['formulatree'] + " " + instance + " 0 --outf=2", shell=True, stdout=sp.PIPE) as p:
+#            out =''
+#            for byteLine in p.stdout:
+#               out  = out + byteLine.decode(sys.stdout.encoding).strip()
+#            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
     if args.transformpform:
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
