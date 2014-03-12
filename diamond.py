@@ -106,22 +106,23 @@ def initvars(cfgfile):
         config.write(open(cfgfile,'w'))
 
 def onestepsolvercall(encodings,instance,headline):
+    global clingo_options,clstderr
     print("==============================")
     print(headline)
     sys.stdout.flush()
-    clingo_options= ['0']
-    clstderr=None
-    clstderr=sp.DEVNULL
+    #clingo_options= ['0']
+    #clstderr=None
+    #clstderr=sp.DEVNULL
     with sp.Popen([clingo]+[x.strip() for x in encodings+[enc['show']]]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
         None
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
+    global clingo_options,clstderr
     print("==============================")
     print(headline)
     sys.stdout.flush()
-    clingo_options= ['0']
-    clstderr=None
-    clstderr=sp.DEVNULL
+    #clingo_options= ['0']
+    #clstderr=sp.DEVNULL
     clingo1 = sp.Popen([clingo]+[x.strip() for x in encodings1+[enc['show']]]+[instance]+['--outf=2']+clingo_options, shell=False, stdout=sp.PIPE, stderr=clstderr)
     python2 = sp.Popen([python]+[enc['prefpy'].strip()],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
     clingo1.stdout.close()
@@ -138,7 +139,8 @@ def indicates_formula_representation(instance):
     return instance.endswith(formula_file_extension)
 
 def main():
-    parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
+    global clingo_options,clstderr
+    parser= argparse.ArgumentParser(description='Program to compute different interpretations for a given ADF', prog='DIAMOND')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
     parser.add_argument('-nai', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
@@ -160,7 +162,9 @@ def main():
     group.add_argument('-fr','--functional-representation', help='acceptance functions are given in extensional form', action='store_true', dest='extensionalform')
     group.add_argument('-pr','--priorities', help='acceptance functions are given as preferences among statements', action='store_true', dest='transformprio')
     parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
-    parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
+#    parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
+    parser.add_argument('--version', help='prints the current version', action='version', version='%(prog)s '+ version)
+    parser.add_argument('-v','--verbose', choices=['0','1','2','json','debug'], dest='verbosity', default='1', help='Control the verbosity of DIAMOND')
     args=parser.parse_args()
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
@@ -168,14 +172,25 @@ def main():
     clingo_options = " 0 2> /dev/null" # optionally --verbose=0
     bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
     transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
+    clingo_options = ['0']
+    clstderr = sp.DEVNULL
+    if args.verbosity == '0':
+        clingo_options.append('--verbose=0')
+    elif args.verbosity == '1':
+        clingo_options.append('--stats=0')
+    elif args.verbosity == 'json':
+        clingo_options.append('--outf=2')
+    elif args.verbosity == 'debug':
+        clstderr = None
+    
     if (not bipolar and not transform_to_functions):
         print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
-    if args.version:
-        print("==============================")
-        print("DIAMOND version " + version)
-        print("==============================")
+    # if args.version:
+    #     print("==============================")
+    #     print("DIAMOND version " + version)
+    #     print("==============================")
 #    if args.adf2dadf_adm:
 #        print("==============================")
 #        print("transforming adf 2 dadf ...")
