@@ -41,7 +41,7 @@ l(P,S) :- subformula(S,P),statement(P).
 
 
 %%% guess interpretation %%%
-1{interVal(P,c(v)),interVal(P,c(f))}1 :- l(P,S), s(S).
+1{interVal(P,c(v));interVal(P,c(f))}1 :- l(P,S), s(S).
 interpretationHasSomePositive :- interVal(P,c(v)).
 
 
@@ -81,7 +81,7 @@ ci(S,constant,P):- interVal(P,c(v)), subformulaEval(F,c(v)),ac(S,F).
 co(S,constant,P):- interVal(P,c(v)), subformulaEval(F,c(f)),ac(S,F).
 %
 %
-#hide.
+%#hide.
 #show ci/1.
 #show ci/3.
 #show co/1.

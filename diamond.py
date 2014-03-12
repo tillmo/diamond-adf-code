@@ -97,6 +97,30 @@ def initvars(cfgfile):
         config.set("Path","python", python)
         config.write(open(cfgfile,'w'))
 
+def onestepsolvercall(encodings,instance,headline):
+    print("==============================")
+    print(headline)
+    sys.stdout.flush()
+    clingo_options= ['0']
+    clstderr=None
+    clstderr=sp.DEVNULL
+    with sp.Popen([clingo]+[x.strip() for x in encodings+[enc['show']]]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
+        None
+
+def twostepsolvercall(encodings1,encodings2,instance,headline):
+    print("==============================")
+    print(headline)
+    sys.stdout.flush()
+    clingo_options= ['0']
+    clstderr=None
+    clstderr=sp.DEVNULL
+    clingo1 = sp.Popen([clingo]+[x.strip() for x in encodings1+[enc['show']]]+[instance]+['--outf=2']+clingo_options, shell=False, stdout=sp.PIPE, stderr=clstderr)
+    python2 = sp.Popen([python]+[enc['prefpy'].strip()],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
+    clingo1.stdout.close()
+    clingo2 = sp.Popen([clingo]+[x.strip() for x in encodings2+[enc['show']]] + ['-'] + clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
+    python2.stdout.close()
+    print(clingo2.communicate()[0])    
+    
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
@@ -145,7 +169,7 @@ def main():
         print("==============================")
         print("transforming pForm ADF using ASP...")
         sys.stdout.flush()
-        with sp.Popen(gringo + " " + enc['repr_change'] + " " + os.path.abspath(args.instance) +  " |"+ clasp + " 0 ", shell=True,stdout=sp.PIPE,stderr=None) as p:
+        with sp.Popen([clingo]+[enc['repr_change']]+[os.path.abspath(args.instance)]+['0'], shell=False,stdout=sp.PIPE,stderr=None) as p:
             sto = p.stdout
             i=1
             for byteLine in sto:
@@ -157,8 +181,9 @@ def main():
         filesToDelete.append(instance)
 
     if args.transformpformec:
-        tmp2=tempfile.NamedTemporaryFile(delete=True)
+        tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
+        filesToDelete.append(instance)
         print("==============================")
         print("transforming pForm ADF using Eclipse...")
         sys.stdout.flush()
@@ -171,7 +196,7 @@ def main():
         #print("transformation took " + elapsedstring  + " seconds")    
     if args.transformprio:
         
-        tmp2 = tempfile.NamedTemporaryFile(delete=True)
+        tmp2 = tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         print("==============================")
         print("transforming prioritized ADF...")
@@ -184,76 +209,29 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
+        filesToDelete.append(instance)
     if args.conflict_free or args.all:
-        print("==============================")
-        print("conflict-free interpretations:")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['op'],enc['cfi']],instance,"conflict-free interpretations:")
     if args.print_transform:
         os.system("cat " + instance)
     if args.model or args.all:
-        print("==============================")
-        print("two-valued models")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['cf'] + enc['model'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['cf'],enc['model']],instance,"two-valued models")
     if args.smodel or args.all:
-        print("==============================")
-        print("stable models:")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['cf'] + enc['model'] + enc['opsm'] + enc['tkk'] + enc['stb'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['cf'],enc['model'],enc['opsm'],enc['tkk'],enc['stb']],instance,"stable models:")
     if args.admissible or args.all:
-        print("==============================")
-        print("admissible interpretations:")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['op'],enc['adm']],instance,"admissible interpretations v2.0")
     if args.complete or args.all:
-        print("==============================")
-        print("complete interpretations:")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['cmp'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['op'],enc['cmp']],instance,"complete interpretations:")
     if args.grounded or args.all:
-        print("==============================")
-        print("grounded interpretation")
-        sys.stdout.flush()
-        os.system(clingo + " " + enc['base'] + enc['op'] + enc['tkk'] + enc['grd'] + instance + " " + enc['show'] + clingo_options)
+        onestepsolvercall([enc['base'],enc['op'],enc['tkk'],enc['grd']])
     if args.preferred:
-        sys.stdout.flush()
-        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
-        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
-        clingo1.stdout.close()
-        clingo2 = sp.Popen([clingo + " " + enc['imax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
-        python2.stdout.close()
-        print(clingo2.communicate()[0])
+        twostepsolvercall([enc['base'],enc['op'],enc['adm']],[enc['imax']],instance,"preferred interpretations")
     if args.naive:
-        print("==============================")
-        print("naive interpretations:")
-        sys.stdout.flush()
-        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
-        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
-        clingo1.stdout.close()
-        clingo2 = sp.Popen([clingo + " " + enc['imax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
-        python2.stdout.close()
-        print(clingo2.communicate()[0])
+        twostepsolvercall([enc['base'],enc['op'],enc['cfi']],[enc['imax']],instance,"naive interpretations:")
     if args.stage:
-        print("==============================")
-        print("stage interpretations:")
-        sys.stdout.flush()
-        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['cfi'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
-        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
-        clingo1.stdout.close()
-        clingo2 = sp.Popen([clingo + " " + enc['rmax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
-        python2.stdout.close()
-        print(clingo2.communicate()[0])
+        twostepsolvercall([enc['base'],enc['op'],enc['cfi']],[enc['rmax']],instance,"stage interpretations:")
     if args.semimodel:
-        print("==============================")
-        print("semi-model interpretations:")
-        sys.stdout.flush()
-        clingo1 = sp.Popen([clingo + " " + enc['base'] + enc['op'] + enc['adm'] + instance + " " + enc['show'] + clingo_options + " --outf=2"], shell=True, stdout=sp.PIPE, stderr=None)
-        python2 = sp.Popen([python + " " + enc['prefpy']], shell=True, stdin=clingo1.stdout, stdout=sp.PIPE)
-        clingo1.stdout.close()
-        clingo2 = sp.Popen([clingo + " " + enc['rmax'] + " - " + enc['show'] + clingo_options], shell=True, stdin=python2.stdout, stderr=None)
-        python2.stdout.close()
-        print(clingo2.communicate()[0])
+        twostepsolvercall([enc['base'],enc['op'],enc['adm']],[enc['rmax']],instance,"semi-model interpretations")
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
