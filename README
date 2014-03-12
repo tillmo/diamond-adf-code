@@ -34,8 +34,8 @@ python = python
 ==============
  Usage - with the diamond script (recommended)
 
-usage: diamond.py [-h] [-cf] [-n] [-stg] [-se] [-m] [-sm] [-g] [-c] [-a] [-p]
-                  [-t] [-dadm] [-cfg CFGFILE] [-pf | -pfe | -pfr] [-all]
+usage: diamond.py [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
+                  [-adm] [-prf] [-t] [-c CFGFILE] [-pf | -pfe | -pfr] [-all]
                   [--version]
                   instance
 
@@ -46,24 +46,22 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -cf, --conflict-free  compute the conflict-free interpretations
-  -n, --naive           compute the naive interpretations
+  -cfi, --conflict-free
+                        compute the conflict-free interpretations
+  -nai, --naive         compute the naive interpretations
   -stg, --stage         compute the stage interpretations
-  -se, --semi-model     compute the semi-model interpretations
-  -m, --model           compute the two-valued models
-  -sm, --stablemodel    compute the stable models
-  -g, --grounded        compute the grounded interpretation
-  -c, --complete        compute the complete interpretations
-  -a, --admissible      compute the admissible interpretations
-  -p, --preferred       compute the preferred interpretations
+  -sem, --semi-model    compute the semi-model interpretations
+  -mod, --model         compute the two-valued models
+  -stm, --stablemodel   compute the stable models
+  -grd, --grounded      compute the grounded interpretation
+  -com, --complete      compute the complete interpretations
+  -adm, --admissible    compute the admissible interpretations
+  -prf, --preferred     compute the preferred interpretations
   -t, --transform       print the transformed adf to stdout
-  -dadm, --transform_2_dsadf_adm
-                        transforms a propositional formula adf into
-                        propositional formula dung style adf (admissible)
-  -cfg CFGFILE          specify a config-file
+  -c CFGFILE            specify a config-file
   -pf, --transform_pform
                         acceptance functions are given as propositional
-                        formulas (translation using ASP) (recommended)
+                        formulas (translation using ASP)
   -pfe, --transform_pform_eclipse
                         acceptance functions are given as propositional
                         formulas (translation using Eclipse Prolog)
