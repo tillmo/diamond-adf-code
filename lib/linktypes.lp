@@ -22,7 +22,7 @@
 %% bipcheck.lp
 %%% ---------------------------
 % splitting a formula into its subformulas
-subformula(X,F) :- ac(X,F),statement(X).
+subformula(X,F) :- ac(X,F),s(X).
 subformula(X,F) :- subformula(X,and(F,_)).
 subformula(X,F) :- subformula(X,and(_,F)).
 subformula(X,F) :- subformula(X,or(_,F)).
@@ -49,7 +49,7 @@ atom(X) :- subformula(X), X=c(v).
 atom(X) :- subformula(X), X=c(f).
 
 % get the links between statements
-link(X,S) :- statement(S), atom(X), subformula(S,X), statement(X).
+link(X,S) :- s(S), atom(X), subformula(S,X), s(X).
 
 % select one link and guess whether it is supporting or attacking
 1{sellink(A,B):link(A,B)}1.
@@ -57,7 +57,7 @@ att(A,B) :- sellink(A,B), not sup(A,B).
 sup(A,B) :- sellink(A,B), not att(A,B).
 
 % use saturation to check whether the guess was right or not
-t(S,A,B,1) | f(S,A,B,1) :- sellink(A,B), statement(S), atom(S), subformula(B,S).
+t(S,A,B,1) | f(S,A,B,1) :- sellink(A,B), s(S), atom(S), subformula(B,S).
 :- t(S,S,B,1).
 t(S,A,B,2) :- t(S,A,B,1).
 f(S,A,B,2) :- f(S,A,B,1), S != A.

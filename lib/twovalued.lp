@@ -24,6 +24,4 @@
 %% Accepts only interpretations that map all statements to either true or false.
 %%
 
-s(S) :- statement(S).
-
 :- s(S), not t(S), not f(S).

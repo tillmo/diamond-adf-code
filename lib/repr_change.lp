@@ -24,7 +24,7 @@
 
 
 %%% guess statement %%%
-1{s(X):statement(X)}1.
+%1{s(X):s(X)}1.
 
 %%% determine links %%%
 subformula(S,F) :- ac(S,F),s(X).
@@ -37,7 +37,7 @@ subformula(S,F) :- subformula(S,imp(_,F)),s(X).
 subformula(S,F) :- subformula(S,imp(F,_)),s(X).
 subformula(S,F) :- subformula(S,iff(_,F)),s(X).
 subformula(S,F) :- subformula(S,iff(F,_)),s(X).
-l(P,S) :- subformula(S,P),statement(P).
+l(P,S) :- subformula(S,P),s(P).
 
 
 %%% guess interpretation %%%

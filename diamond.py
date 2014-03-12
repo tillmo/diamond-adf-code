@@ -44,6 +44,11 @@ installdir = os.path.dirname(os.path.realpath(__file__))
 eclipse = "eclipse"
 clingo = "clingo"
 python = "python"
+transform = "asp"
+
+# file extensions of instances that signify something
+bipolar_file_extension = ".badf"
+formula_file_extension = ".adf"
 
 # encoding filenames
 enc = dict(
@@ -73,6 +78,8 @@ enc = dict(
 # files to delete
 filesToDelete=[]
 
+bipolar=False
+
 def getoptval(config,section,option,default):
     if config.has_option(section,option):
         return config.get(section,option)
@@ -80,7 +87,7 @@ def getoptval(config,section,option,default):
         return default
 
 def initvars(cfgfile):
-    global installdir, gringo, gringo305,clasp,claspD,eclipse,clingo,python
+    global installdir, eclipse, clingo, python, transform
     cfgfile = os.path.expandvars(os.path.expanduser(cfgfile))
     config = cp.ConfigParser()
     if os.path.exists(cfgfile):
@@ -89,12 +96,15 @@ def initvars(cfgfile):
         eclipse = getoptval(config,"Path","eclipse",eclipse)
         clingo = getoptval(config,"Path","clingo",clingo)
         python = getoptval(config,"Path","python",python)
+        transform = getoptval(config,"Preferences","transform",transform)
     else: #config file does not exist - create one
         config.add_section("Path")
         config.set("Path","installdir",installdir)
         config.set("Path","eclipse", eclipse)
         config.set("Path","clingo", clingo)
         config.set("Path","python", python)
+        config.add_section("Preferences")
+        config.set("Preferences","transform", transform)
         config.write(open(cfgfile,'w'))
 
 def onestepsolvercall(encodings,instance,headline):
@@ -121,6 +131,14 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     python2.stdout.close()
     print(clingo2.communicate()[0])    
     
+def indicates_bipolarity(instance):
+    global bipolar_file_extension
+    return instance.endswith(bipolar_file_extension)
+
+def indicates_formula_representation(instance):
+    global formula_file_extension
+    return instance.endswith(formula_file_extension)
+
 def main():
     parser= argparse.ArgumentParser(description='Program to compute different models and sets for a given ADF')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
@@ -134,21 +152,26 @@ def main():
     parser.add_argument('-com', '--complete', help='compute the complete interpretations', action='store_true', dest='complete')
     parser.add_argument('-adm', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
-    parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
-    #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
-    parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-pf','--transform_pform', help='acceptance functions are given as propositional formulas (translation using ASP)', action='store_true', dest='transformpform')
-    group.add_argument('-pfe','--transform_pform_eclipse', help='acceptance functions are given as propositional formulas (translation using Eclipse Prolog)', action='store_true', dest='transformpformec')
-    group.add_argument('-pfr','--transform_prio', help='transform a prioritized ADF before the computation', action='store_true', dest='transformprio')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
+    #parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
+    #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-b','--bipolar', help='acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)', action='store_true', dest='bipolar_input')
+    group.add_argument('-pf','--propositional-formulas', help='acceptance functions are given as propositional formulas', action='store_true', dest='transformpform')
+    #group.add_argument('-pf','--propositional-formulas-eclipse', help='acceptance functions are given as propositional formulas (translation using ECLiPSe Prolog)', action='store_true', dest='transformpformec')
+    group.add_argument('-fr','--functional-representation', help='acceptance functions are given in extensional form', action='store_true', dest='extensionalform')
+    group.add_argument('-pr','--priorities', help='acceptance functions are given as preferences among statements', action='store_true', dest='transformprio')
+    parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     parser.add_argument('--version', help='prints the current version', action='store_true', dest='version')
-    
     args=parser.parse_args()
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
     clingo_options = " 0 2> /dev/null" # optionally --verbose=0
+    bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
+    transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
+    if (not bipolar and not transform_to_functions):
+        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
     if args.version:
@@ -163,7 +186,7 @@ def main():
 #            for byteLine in p.stdout:
 #               out  = out + byteLine.decode(sys.stdout.encoding).strip()
 #            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
-    if args.transformpform:
+    if (transform_to_functions and transform=="asp"):
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
         print("==============================")
@@ -180,7 +203,7 @@ def main():
         tmp2.close()
         filesToDelete.append(instance)
 
-    if args.transformpformec:
+    if (transform_to_functions and transform=="eclipse"):
         tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         filesToDelete.append(instance)
@@ -195,7 +218,6 @@ def main():
         #elapsedstring = "%.3f" % (elapsed,)
         #print("transformation took " + elapsedstring  + " seconds")    
     if args.transformprio:
-        
         tmp2 = tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         print("==============================")
@@ -212,8 +234,8 @@ def main():
         filesToDelete.append(instance)
     if args.conflict_free or args.all:
         onestepsolvercall([enc['base'],enc['op'],enc['cfi']],instance,"conflict-free interpretations:")
-    if args.print_transform:
-        os.system("cat " + instance)
+    #if args.print_transform:
+    #    os.system("cat " + instance)
     if args.model or args.all:
         onestepsolvercall([enc['base'],enc['cf'],enc['model']],instance,"two-valued models")
     if args.smodel or args.all:
@@ -223,7 +245,7 @@ def main():
     if args.complete or args.all:
         onestepsolvercall([enc['base'],enc['op'],enc['cmp']],instance,"complete interpretations:")
     if args.grounded or args.all:
-        onestepsolvercall([enc['base'],enc['op'],enc['tkk'],enc['grd']])
+        onestepsolvercall([enc['base'],enc['op'],enc['tkk'],enc['grd']],instance,"grounded interpretation:")
     if args.preferred:
         twostepsolvercall([enc['base'],enc['op'],enc['adm']],[enc['imax']],instance,"preferred interpretations")
     if args.naive:

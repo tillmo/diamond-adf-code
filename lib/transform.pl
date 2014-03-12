@@ -96,14 +96,14 @@ checkADF(L) :-
 	\+ acceptanceMentionsNonExistentStatement(L).
 
 statementWithoutAcceptance(L) :-
-	member(statement(S), L),
+	member(s(S), L),
 	\+ member(ac(S, _), L),
 	error([ "statement without acceptance condition: ", S ]),
 	exit(65).
 
 acceptanceWithoutStatement(L) :-
 	member(ac(S, _), L),
-	\+ member(statement(S), L),
+	\+ member(s(S), L),
 	error([ "acceptance condition for non-existent statement: ", S ]),
 	exit(65).
 
@@ -111,7 +111,7 @@ acceptanceMentionsNonExistentStatement(L) :-
 	member(ac(S, F), L),
 	vocabulary(F, V),
 	member(T, V),
-	\+ member(statement(T), L),
+	\+ member(s(T), L),
 	error([ "acceptance condition ", F, " of ", S, " mentions non-existent statement ", T ]),
 	exit(65).
 
@@ -133,7 +133,7 @@ transformList([H|T], OutputStream) :-
 
 :- local variable(index, 1).
 
-transformElement(statement(S), Stream) :-
+transformElement(s(S), Stream) :-
 	!,
 	writeFact(s(S), Stream).
 transformElement(ac(S, F), Stream) :-
