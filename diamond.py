@@ -52,27 +52,29 @@ formula_file_extension = ".adf"
 
 # encoding filenames
 enc = dict(
-    tkk = "3KK.lp ",
-    adm = "admissible.lp ",
-    base = "base.lp ",
-    cf = "cf.lp ",
-    cfi = "cfi.lp ",
-    cmp = "complete.lp ",
-    grd = "grounded.lp ",
-    imax = "imax.lp ",
-    model = "model.lp ",
-    op = "op.lp ",
-    opsm = "opsm.lp ",
-    prf = "preferred.lp ",
-    pref = "pref.lp ",
-    prefpy = "pref.py ",
-    prio_trans = "prio_trans.lp ",
+    tkk = "3KK.lp",
+    adm = "admissible.lp",
+    base = "base.lp",
+    bop = "bop.lp",
+    cf = "cf.lp",
+    cfi = "cfi.lp",
+    cmp = "complete.lp",
+    fmodel = "fmodel.lp",
+    grd = "grounded.lp",    
+    imax = "imax.lp",
+    model = "model.lp",
+    op = "op.lp",
+    opsm = "opsm.lp",
+    prf = "preferred.lp",
+    pref = "pref.lp",
+    prefpy = "pref.py",
+    prio_trans = "prio_trans.lp",
     repr_change = "repr_change.lp",
-    rmax = "rmax.lp ",
-    show = "show.lp ",
-    stb = "stable.lp ",
-    transformpl = "transform.pl ",
-    transformpy = "transform.py ",
+    rmax = "rmax.lp",
+    show = "show.lp",
+    stb = "stable.lp",
+    transformpl = "transform.pl",
+    transformpy = "transform.py",
     formulatree = os.path.join('tools','formulatree.lp'))
 
 # files to delete
@@ -112,7 +114,7 @@ def onestepsolvercall(encodings,instance,headline):
     clingo_options= ['0']
     clstderr=None
     clstderr=sp.DEVNULL
-    with sp.Popen([clingo]+[x.strip() for x in encodings+[enc['show']]]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
+    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
         None
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
@@ -122,10 +124,10 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     clingo_options= ['0']
     clstderr=None
     clstderr=sp.DEVNULL
-    clingo1 = sp.Popen([clingo]+[x.strip() for x in encodings1+[enc['show']]]+[instance]+['--outf=2']+clingo_options, shell=False, stdout=sp.PIPE, stderr=clstderr)
-    python2 = sp.Popen([python]+[enc['prefpy'].strip()],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
+    clingo1 = sp.Popen([clingo]+encodings1+[enc['show']]+[instance]+['--outf=2']+clingo_options, shell=False, stdout=sp.PIPE, stderr=clstderr)
+    python2 = sp.Popen([python]+[enc['prefpy']],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
     clingo1.stdout.close()
-    clingo2 = sp.Popen([clingo]+[x.strip() for x in encodings2+[enc['show']]] + ['-'] + clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
+    clingo2 = sp.Popen([clingo]+encodings2+[enc['show']]+['-']+clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
     python2.stdout.close()
     print(clingo2.communicate()[0])    
     
@@ -151,7 +153,7 @@ def main():
     parser.add_argument('-adm', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
-    #parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
+    parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
     #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-b','--bipolar', help='acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)', action='store_true', dest='bipolar_input')
@@ -165,13 +167,20 @@ def main():
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
-    clingo_options = " 0 2> /dev/null" # optionally --verbose=0
-    bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
-    transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
-    if (not bipolar and not transform_to_functions):
-        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
+    bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
+    transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar and not args.model)
+    if (not bipolar and not transform_to_functions):
+        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
+    if bipolar:
+        operators=[enc['bop']]
+    else:
+        operators=[enc['base'],enc['op']]
+    if indicates_formula_representation(args.instance) or bipolar:
+        model_encoding=[enc['fmodel']]
+    else:
+        model_encoding=[enc['base'],enc['cf'],enc['model']]
     if args.version:
         print("==============================")
         print("DIAMOND version " + version)
@@ -200,7 +209,6 @@ def main():
                     i+=1
         tmp2.close()
         filesToDelete.append(instance)
-
     if (transform_to_functions and transform=="eclipse"):
         tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
@@ -208,13 +216,12 @@ def main():
         print("==============================")
         print("transforming pForm ADF using Eclipse...")
         sys.stdout.flush()
-        #start = time.time()
-        os.system(eclipse + " -b " + enc['transformpl'] + "-e main -- " + os.path.abspath(args.instance) + " " + instance)
-        #os.system("./transform.sh " + os.path.abspath(args.instance) + " " + instance)
-        #os.system("python transform.py --propositional " + os.path.abspath(args.instance) + " > " + instance)
-        #elapsed = (time.time() - start)
-        #elapsedstring = "%.3f" % (elapsed,)
-        #print("transformation took " + elapsedstring  + " seconds")    
+        start = time.time()
+        with sp.Popen([eclipse,"-f",enc['transformpl'],"-e", "main", "--", os.path.abspath(args.instance),instance],stderr=None,shell=False) as p:
+            None
+        elapsed = (time.time() - start)
+        elapsedstring = "%.3f" % (elapsed,)
+        print("transformation took " + elapsedstring  + " seconds")    
     if args.transformprio:
         tmp2 = tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
@@ -230,28 +237,28 @@ def main():
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
         filesToDelete.append(instance)
-    if args.conflict_free or args.all:
-        onestepsolvercall([enc['base'],enc['op'],enc['cfi']],instance,"conflict-free interpretations:")
-    #if args.print_transform:
-    #    os.system("cat " + instance)
+    if args.print_transform:
+        os.system("cat " + instance)
     if args.model or args.all:
-        onestepsolvercall([enc['base'],enc['cf'],enc['model']],instance,"two-valued models")
-    if args.smodel or args.all:
+        onestepsolvercall(model_encoding,instance,"two-valued models")
+    if args.smodel or args.all: # note that stable models are not yet working for the functional representation
         onestepsolvercall([enc['base'],enc['cf'],enc['model'],enc['opsm'],enc['tkk'],enc['stb']],instance,"stable models:")
+    if args.conflict_free or args.all:
+        onestepsolvercall(operators+[enc['cfi']],instance,"conflict-free interpretations:")
     if args.admissible or args.all:
-        onestepsolvercall([enc['base'],enc['op'],enc['adm']],instance,"admissible interpretations v2.0")
+        onestepsolvercall(operators+[enc['adm']],instance,"admissible interpretations v2.0:")
     if args.complete or args.all:
-        onestepsolvercall([enc['base'],enc['op'],enc['cmp']],instance,"complete interpretations:")
+        onestepsolvercall(operators+[enc['cmp']],instance,"complete interpretations:")
     if args.grounded or args.all:
-        onestepsolvercall([enc['base'],enc['op'],enc['tkk'],enc['grd']],instance,"grounded interpretation:")
+        onestepsolvercall(operators+[enc['tkk'],enc['grd']],instance,"grounded interpretation:")
     if args.preferred:
-        twostepsolvercall([enc['base'],enc['op'],enc['adm']],[enc['imax']],instance,"preferred interpretations")
+        twostepsolvercall(operators+[enc['adm']],[enc['imax']],instance,"preferred interpretations")
     if args.naive:
-        twostepsolvercall([enc['base'],enc['op'],enc['cfi']],[enc['imax']],instance,"naive interpretations:")
+        twostepsolvercall(operators+[enc['cfi']],[enc['imax']],instance,"naive interpretations:")
     if args.stage:
-        twostepsolvercall([enc['base'],enc['op'],enc['cfi']],[enc['rmax']],instance,"stage interpretations:")
+        twostepsolvercall(operators+[enc['cfi']],[enc['rmax']],instance,"stage interpretations:")
     if args.semimodel:
-        twostepsolvercall([enc['base'],enc['op'],enc['adm']],[enc['rmax']],instance,"semi-model interpretations")
+        twostepsolvercall(operators+[enc['adm']],[enc['rmax']],instance,"semi-model interpretations")
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
