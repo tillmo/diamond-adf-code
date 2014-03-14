@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% Copyright 2013 Stefan Ellmauthaler, ellmauthaler@informatik.uni-leipzig.de
+%%           2014 Hannes Strass, strass@informatik.uni-leipzig.de
 %%
 %% This file is part of diamond.
 %%
@@ -27,12 +28,10 @@
 
 step(0).
 
-{t(S,0):s(S)}.
-{f(S,0):s(S)}.
+1 { t(S, 0) ; f(S, 0) ; u(S, 0) } 1 :- s(S).
 
-:- t(S,0), f(S,0).
 :- nofp(0).
 
-t(S) :- t(S,_).
-f(S) :- f(S,_).
-u(S) :- s(S), not t(S), not f(S).
+t(S) :- t(S,0).
+f(S) :- f(S,0).
+u(S) :- u(S,0).
