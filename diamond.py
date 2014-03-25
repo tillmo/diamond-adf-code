@@ -169,7 +169,7 @@ def main():
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
-    parser.add_argument('-bc', '--bipolarity_check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
+    parser.add_argument('-bc', '--bipolarity-check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
     parser.add_argument('-clt', '--compute-link-types', help='compute the link types (implies instance is bipolar)', action='store_true', dest='compute_link_type')
     #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     group = parser.add_mutually_exclusive_group()

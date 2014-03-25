@@ -52,17 +52,22 @@ transform = "asp"
     Supporting links are declared via predicate sup/2.
     Attacking links are declared via predicate att/2.
 
- 3. Functional representation: any other file name
+ 3. Dung AFs in ASPARTIX syntax: file names like "instance.af"
+    Arguments are declared via predicate arg/1.
+    Attacks are declared via predicate att/2.
 
- Diamond can also be told the input format via command line options, see below.
- If neither is specified, then diamond will complain, but assume case 3.
+ 4. Functional representation: any other file name
+
+ DIAMOND can also be told the input format via command line options, see below.
+ If neither is specified, then DIAMOND will complain, but assume case 3.
 
 ==============
- Usage - with the diamond script (recommended)
+ Usage - with the DIAMOND script (recommended)
 
 usage: DIAMOND [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
-               [-adm] [-prf] [-all] [-t] [-bc] [-clt] [-b | -pf | -fr | -pr]
-               [-c CFGFILE] [--version] [-v {0,1,2,json,debug}]
+               [-adm] [-prf] [-all] [-t] [-bc] [-clt]
+               [-af | -b | -pf | -fr | -pr] [-c CFGFILE] [--version]
+               [-v {0,1,2,json,debug}]
                instance
 
 Program to compute different interpretations for a given ADF
@@ -85,11 +90,14 @@ optional arguments:
   -prf, --preferred     compute the preferred interpretations
   -all, --all           compute interpretations for all semantics
   -t, --transform       print the transformed adf to stdout
-  -bc, --bipolarity_check
+  -bc, --bipolarity-check
                         Check whether a given instance is bipolar or not
                         (implies -pf)
   -clt, --compute-link-types
                         compute the link types (implies instance is bipolar)
+  -af, --argumentation-framework
+                        input is a Dung argumentation framework in ASPARTIX
+                        syntax with arg/1 and att/2
   -b, --bipolar         acceptance functions are given as propositional
                         formulas, attacking and supporting links are specified
                         (implies -pf)
@@ -105,11 +113,10 @@ optional arguments:
   -v {0,1,2,json,debug}, --verbose {0,1,2,json,debug}
                         Control the verbosity of DIAMOND
 
-
 ==============
- Usage - without the diamond script
+ Usage - without the DIAMOND script
 
-To compute the models without the diamond script use the following commands 
+To compute the models without the DIAMOND script use the following commands 
 (Note: those are Unix-Shell commands. For windows use the appropriate commands.)
 
 +----------------+------------------------------------------------------+
@@ -157,8 +164,12 @@ To compute the semantics of bipolar ADFs, use the following encodings:
 There is also an efficient encoding of the model semantics that only needs
 the predicates s/1 and ac/2. Call "clingo fmodel.lp show.lp instance.lp 0".
 
+Finally, DIAMOND can also deal with Dung argumentation frameworks in ASPARTIX syntax.
+For this, just use afop.lp instead of bop.lp in the table above.
+
 ==============
 Bipolarity options:
-The bipolarity check determines whether a given ADF in propositional formula respresentation is bipolar or not.
-DIAMOND will state "UNSATISFIABLE" if it is bipolar (i.e. it is not possible to find non bipolar link).
-In contrast the "compute link-types" option will compute the link-types. Note that only the last printed answer set is the complete answer.
+The bipolarity check determines whether a given ADF in propositional formula 
+respresentation is bipolar or not. DIAMOND will state "UNSATISFIABLE" if it is bipolar 
+(i.e. it is not possible to find a non-bipolar link). In contrast the "compute link-types" 
+option will compute the link-types. Note that only the last printed answer set is the complete answer.
