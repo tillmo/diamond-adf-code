@@ -207,12 +207,12 @@ def main():
             operators=[enc['afop']]
         else:
             operators=[enc['base'],enc['op']]
-            if indicates_formula_representation(args.instance) or bipolar:
-                model_encoding=[enc['fmodel']]
-            elif af:
-                model_encoding=[enc['cmp'],enc['twovalued']]
-            else:
-                model_encoding=[enc['base'],enc['cf'],enc['model']]
+        if indicates_formula_representation(args.instance) or bipolar:
+            model_encoding=[enc['fmodel']]
+        elif af:
+            model_encoding=[enc['afop'],enc['cmp'],enc['twovalued']]
+        else:
+            model_encoding=[enc['base'],enc['cf'],enc['model']]
     clingo_options = ['0']
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
