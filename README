@@ -88,6 +88,11 @@ optional arguments:
   -b, --bipolar         acceptance functions are given as propositional
                         formulas, attacking and supporting links are specified
                         (implies -pf)
+  -clt, --compute-link-types
+                        compute the link types (implies instance is bipolar)
+  -b, --bipolar         acceptance functions are given as propositional
+                        formulas, attacking and supporting links are specified
+                        (implies -pf)
   -pf, --propositional-formulas
                         acceptance functions are given as propositional
                         formulas
@@ -150,3 +155,9 @@ To compute the semantics of bipolar ADFs, use the following encodings:
 
 There is also an efficient encoding of the model semantics that only needs
 the predicates s/1 and ac/2. Call "clingo fmodel.lp show.lp instance.lp 0".
+
+==============
+Bipolarity options:
+The bipolarity check determines whether a given ADF in propositional formula respresentation is bipolar or not.
+DIAMOND will state "UNSATISFIABLE" if it is bipolar (i.e. it is not possible to find non bipolar link).
+In contrast the "compute link-types" option will compute the link-types. Note that only the last printed answer set is the complete answer.
