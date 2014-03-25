@@ -75,7 +75,9 @@ enc = dict(
     stb = "stable.lp",
     transformpl = "transform.pl",
     transformpy = "transform.py",
-    formulatree = os.path.join('tools','formulatree.lp'))
+    formulatree = os.path.join('tools','formulatree.lp'),
+    bipc = "bipcheck.lp",
+    ltype = "linktypes.lp")
 
 # files to delete
 filesToDelete=[]
@@ -107,16 +109,20 @@ def initvars(cfgfile):
         config.set("Preferences","transform", transform)
         config.write(open(cfgfile,'w'))
 
-def onestepsolvercall(encodings,instance,headline):
+def onestepsolvercall(encodings,instance,headline, allmodels=True):
     global clingo_options,clstderr
     print("==============================")
     print(headline)
     sys.stdout.flush()
+    if not allmodels:
+        clingo_options.remove('0')
     #clingo_options= ['0']
     #clstderr=None
     #clstderr=sp.DEVNULL
     with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
         None
+    if not allmodels:
+        clingo_options.append('0')
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
     global clingo_options,clstderr
@@ -156,6 +162,8 @@ def main():
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
+    parser.add_argument('-bc', '--bipolarity_check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
+    parser.add_argument('-clt', '--compute-link-types', help='compute the link types (implies instance is bipolar)', action='store_true', dest='compute_link_type')
     #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-b','--bipolar', help='acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)', action='store_true', dest='bipolar_input')
@@ -174,7 +182,7 @@ def main():
         enc[el] = os.path.join(installdir,encdir,enc[el])
     bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
     transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar and not args.model)
-    if (not bipolar and not transform_to_functions):
+    if ((not bipolar) and (not transform_to_functions)):
         print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     if bipolar:
         operators=[enc['bop']]
@@ -202,6 +210,16 @@ def main():
 #            for byteLine in p.stdout:
 #               out  = out + byteLine.decode(sys.stdout.encoding).strip()
 #            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
+    if args.bipolarity_check:
+        onestepsolvercall([enc['bipc']],instance,"bipolarity check:",False)
+    if args.compute_link_type:
+        print("==============================")
+        print("compute link-types:")
+        clingo_options.append('--enum-mode=brave')
+        sys.stdout.flush()
+        with sp.Popen([clingo,enc['ltype'],instance]+clingo_options,stderr=clstderr,shell=False) as p:
+            None
+        clingo_options.remove('--enum-mode=brave')
     if (transform_to_functions and transform=="asp"):
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
