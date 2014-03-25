@@ -47,6 +47,7 @@ python = "python"
 transform = "asp"
 
 # file extensions of instances that signify something
+dung_af_file_extension = ".af"
 bipolar_file_extension = ".badf"
 formula_file_extension = ".adf"
 
@@ -54,14 +55,18 @@ formula_file_extension = ".adf"
 enc = dict(
     tkk = "3KK.lp",
     adm = "admissible.lp",
+    afop = "afop.lp",
     base = "base.lp",
+    bipc = "bipcheck.lp",
     bop = "bop.lp",
     cf = "cf.lp",
     cfi = "cfi.lp",
     cmp = "complete.lp",
     fmodel = "fmodel.lp",
+    formulatree = os.path.join('tools','formulatree.lp'),
     grd = "grounded.lp",    
     imax = "imax.lp",
+    ltype = "linktypes.lp",
     model = "model.lp",
     op = "op.lp",
     opsm = "opsm.lp",
@@ -75,9 +80,7 @@ enc = dict(
     stb = "stable.lp",
     transformpl = "transform.pl",
     transformpy = "transform.py",
-    formulatree = os.path.join('tools','formulatree.lp'),
-    bipc = "bipcheck.lp",
-    ltype = "linktypes.lp")
+    twovalued = "twovalued.lp")
 
 # files to delete
 filesToDelete=[]
@@ -137,6 +140,10 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     clingo2 = sp.Popen([clingo]+encodings2+[enc['show']]+['-']+clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
     python2.stdout.close()
     print(clingo2.communicate()[0])    
+
+def indicates_dung_af(instance):
+    global dung_af_file_extension
+    return instance.endswith(dung_af_file_extension)
     
 def indicates_bipolarity(instance):
     global bipolar_file_extension
@@ -166,6 +173,7 @@ def main():
     parser.add_argument('-clt', '--compute-link-types', help='compute the link types (implies instance is bipolar)', action='store_true', dest='compute_link_type')
     #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
     group = parser.add_mutually_exclusive_group()
+    group.add_argument('-af','--argumentation-framework', help='input is a Dung argumentation framework in ASPARTIX syntax with arg/1 and att/2', action='store_true', dest='af_input')
     group.add_argument('-b','--bipolar', help='acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)', action='store_true', dest='bipolar_input')
     group.add_argument('-pf','--propositional-formulas', help='acceptance functions are given as propositional formulas', action='store_true', dest='transformpform')
     #group.add_argument('-pf','--propositional-formulas-eclipse', help='acceptance functions are given as propositional formulas (translation using ECLiPSe Prolog)', action='store_true', dest='transformpformec')
@@ -180,18 +188,31 @@ def main():
     initvars(args.cfgfile)
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
+    af = (indicates_dung_af(args.instance) or args.af_input)
     bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
-    transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar and not args.model)
-    if ((not bipolar) and (not transform_to_functions)):
-        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
-    if bipolar:
-        operators=[enc['bop']]
+    transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
+    if args.model:
+        if indicates_formula_representation(args.instance):
+            model_encoding=[enc['fmodel']]
+        elif af:
+            model_encoding=[enc['afop'],enc['cmp'],enc['twovalued']]
+        else:
+            model_encoding=[enc['base'],enc['cf'],enc['model']]
     else:
-        operators=[enc['base'],enc['op']]
-    if indicates_formula_representation(args.instance) or bipolar:
-        model_encoding=[enc['fmodel']]
-    else:
-        model_encoding=[enc['base'],enc['cf'],enc['model']]
+        if ((not bipolar) and (not transform_to_functions)):
+            print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
+        if bipolar:
+            operators=[enc['bop']]
+        elif af:
+            operators=[enc['afop']]
+        else:
+            operators=[enc['base'],enc['op']]
+            if indicates_formula_representation(args.instance) or bipolar:
+                model_encoding=[enc['fmodel']]
+            elif af:
+                model_encoding=[enc['cmp'],enc['twovalued']]
+            else:
+                model_encoding=[enc['base'],enc['cf'],enc['model']]
     clingo_options = ['0']
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
