@@ -300,7 +300,7 @@ def main():
     if args.grounded or args.all:
         onestepsolvercall(operators+[enc['tkk'],enc['grd']],instance,"grounded interpretation:")
     if args.preferred:
-        twostepsolvercall(operators+[enc['adm']],[enc['imax']],instance,"preferred interpretations")
+        twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations")
     if args.naive:
         twostepsolvercall(operators+[enc['cfi']],[enc['imax']],instance,"naive interpretations:")
     if args.stage:
