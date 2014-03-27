@@ -188,31 +188,29 @@ def main():
     initvars(args.cfgfile)
     for el in iter(enc):
         enc[el] = os.path.join(installdir,encdir,enc[el])
+    # compute some handy Booleans which are needed later
     af = (indicates_dung_af(args.instance) or args.af_input)
     bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
+    model_only = args.model and not args.conflict_free and not args.naive and not args.stage and not args.semimodel and not args.smodel and not args.grounded and not args.complete and not args.admissible and not args.preferred and not args.all and not args.print_transform
+    do_transformation = args.conflict_free or args.naive or args.stage or args.semimodel or args.smodel or args.grounded or args.complete or args.admissible or args.preferred or args.all or args.print_transform
     transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
-    if args.model:
-        if indicates_formula_representation(args.instance):
+    # assign the correct encodings of the semantics
+    model_encoding=[enc['base'],enc['cf'],enc['model']]
+    operators=[enc['base'],enc['op']]
+    # check if we are dealing with an af and choose the respective operator if so
+    if af:
+        model_encoding=[enc['afop'],enc['cmp'],enc['twovalued']]
+        operators=[enc['afop']]
+    # check if the model semantics is the only thing we should compute for a formula ADF and use a special encoding
+    if model_only and (indicates_formula_representation(args.instance) or bipolar):
             model_encoding=[enc['fmodel']]
-        elif af:
-            model_encoding=[enc['afop'],enc['cmp'],enc['twovalued']]
-        else:
-            model_encoding=[enc['base'],enc['cf'],enc['model']]
-    else:
-        if ((not bipolar) and (not transform_to_functions)):
-            print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
-        if bipolar:
-            operators=[enc['bop']]
-        elif af:
-            operators=[enc['afop']]
-        else:
-            operators=[enc['base'],enc['op']]
-        if indicates_formula_representation(args.instance) or bipolar:
-            model_encoding=[enc['fmodel']]
-        elif af:
-            model_encoding=[enc['afop'],enc['cmp'],enc['twovalued']]
-        else:
-            model_encoding=[enc['base'],enc['cf'],enc['model']]
+    # otherwise, the choice of operator depends on bipolarity of the instance
+    if bipolar:
+        operators=[enc['bop']]
+    # if the information is insufficient, complain terribly
+    if ((not bipolar) and (not transform_to_functions)):
+        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
+    # set clingo options
     clingo_options = ['0']
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
@@ -241,7 +239,7 @@ def main():
         with sp.Popen([clingo,enc['ltype'],instance]+clingo_options,stderr=clstderr,shell=False) as p:
             None
         clingo_options.remove('--enum-mode=brave')
-    if (transform_to_functions and transform=="asp"):
+    if (transform_to_functions and do_transformation and transform=="asp"):
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
         print("==============================")
@@ -257,7 +255,7 @@ def main():
                     i+=1
         tmp2.close()
         filesToDelete.append(instance)
-    if (transform_to_functions and transform=="eclipse"):
+    if (transform_to_functions and do_transformation and transform=="eclipse"):
         tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         filesToDelete.append(instance)
@@ -270,7 +268,7 @@ def main():
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
         print("transformation took " + elapsedstring  + " seconds")    
-    if args.transformprio:
+    if args.transformprio and do_transformation:
         tmp2 = tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         print("==============================")
@@ -294,19 +292,19 @@ def main():
     if args.conflict_free or args.all:
         onestepsolvercall(operators+[enc['cfi']],instance,"conflict-free interpretations:")
     if args.admissible or args.all:
-        onestepsolvercall(operators+[enc['adm']],instance,"admissible interpretations v2.0:")
+        onestepsolvercall(operators+[enc['adm']],instance,"admissible interpretations:")
     if args.complete or args.all:
         onestepsolvercall(operators+[enc['cmp']],instance,"complete interpretations:")
     if args.grounded or args.all:
         onestepsolvercall(operators+[enc['tkk'],enc['grd']],instance,"grounded interpretation:")
-    if args.preferred:
+    if args.preferred or args.all:
         twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations")
-    if args.naive:
+    if args.naive or args.all:
         twostepsolvercall(operators+[enc['cfi']],[enc['imax']],instance,"naive interpretations:")
-    if args.stage:
+    if args.stage or args.all:
         twostepsolvercall(operators+[enc['cfi']],[enc['rmax']],instance,"stage interpretations:")
-    if args.semimodel:
-        twostepsolvercall(operators+[enc['adm']],[enc['rmax']],instance,"semi-model interpretations")
+    if args.semimodel or args.all:
+        twostepsolvercall(operators+[enc['cmp']],[enc['rmax']],instance,"semi-model interpretations")
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
