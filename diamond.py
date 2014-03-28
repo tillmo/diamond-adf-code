@@ -36,7 +36,7 @@ import lib.tools.formulatree as ft
 #import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
 import lib.tools.utils as util
 
-version='0.15'
+version='1.0.0'
 
 # default variables
 encdir = "lib"
