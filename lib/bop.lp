@@ -49,38 +49,52 @@ patt(P, S, I) :- att(P, S), up(P, S, I).
 % set supporters to false and attackers to true
 % if the resulting interpretation makes S true, then S is valid
 
-model(valid, S, I, P) :- patt(P, S, I).
+model(refute, S, I, P) :- patt(P, S, I).
+notModel(refute, S, I, P) :- psup(P, S, I).
 
-valid(S,I) :- ac(S, F), model(valid, S, I, F).
+valid(S,I) :- ac(S, F), model(refute, S, I, F).
 
 % to figure out whether the acceptance condition is unsatisfiable,
 % set supporters to true and attackers to false
 % if the resulting interpretation makes S false, then S is unsat
 
-model(unsat, S, I, P) :- psup(P, S, I).
+model(satisfy, S, I, P) :- psup(P, S, I).
+notModel(satisfy, S, I, P) :- patt(P, S, I).
 
-unsat(S,I) :- ac(S, F), step(I), not model(unsat, S, I, F).
+unsat(S,I) :- ac(S, F), notModel(satisfy, S, I, F).
 
 % figure out whether various interpretations are models for acceptance formulas
 % model(J, S, I, F) means that the two-valued interpretation at step I 
 % where S is considered true if t(S, I) holds and false otherwise
 % is a model for formula F, where J is a type among {valid, unsat}
 
-type(valid).
-type(unsat).
+type(refute).
+type(satisfy).
 
 model(J, S, I, c(v)) :- relevant(S, c(v)), step(I), type(J).
 model(J, S, I, P) :- l(P, S), t(P, I), type(J).
-model(J, S, I, neg(F)) :- relevant(S, neg(F)), step(I), type(J), not model(J, S, I, F).
+model(J, S, I, neg(F)) :- relevant(S, neg(F)), notModel(J, S, I, F).
 model(J, S, I, and(F,G)) :- relevant(S, and(F,G)), model(J, S, I, F), model(J, S, I, G).
 model(J, S, I, or(F,G)) :- relevant(S, or(F,G)), model(J, S, I, F).
 model(J, S, I, or(F,G)) :- relevant(S, or(F,G)), model(J, S, I, G).
 model(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), model(J, S, I, G).
-model(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), step(I), type(J), not model(J, S, I, F).
+model(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), notModel(J, S, I, F).
 model(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), model(J, S, I, F), model(J, S, I, G).
-model(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), step(I), type(J), not model(J, S, I, F), not model(J, S, I, G).
-model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), step(I), type(J), model(J, S, I, F), not model(J, S, I, G).
-model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), step(I), type(J), model(J, S, I, G), not model(J, S, I, F).
+model(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), notModel(J, S, I, F), notModel(J, S, I, G).
+model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), model(J, S, I, F), notModel(J, S, I, G).
+model(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), model(J, S, I, G), notModel(J, S, I, F).
+
+notModel(J, S, I, c(f)) :- relevant(S, c(f)), step(I), type(J).
+notModel(J, S, I, P) :- l(P, S), f(P, I), type(J).
+notModel(J, S, I, neg(F)) :- relevant(S, neg(F)), model(J, S, I, F).
+notModel(J, S, I, or(F,G)) :- relevant(S, or(F,G)), notModel(J, S, I, F), notModel(J, S, I, G).
+notModel(J, S, I, and(F,G)) :- relevant(S, and(F,G)), notModel(J, S, I, F).
+notModel(J, S, I, and(F,G)) :- relevant(S, and(F,G)), notModel(J, S, I, G).
+notModel(J, S, I, imp(F,G)) :- relevant(S, imp(F,G)), model(J, S, I, F), notModel(J, S, I, G).
+notModel(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), model(J, S, I, F), notModel(J, S, I, G).
+notModel(J, S, I, iff(F,G)) :- relevant(S, iff(F,G)), notModel(J, S, I, F), model(J, S, I, G).
+notModel(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), model(J, S, I, F), model(J, S, I, G).
+notModel(J, S, I, xor(F,G)) :- relevant(S, xor(F,G)), notModel(J, S, I, G), notModel(J, S, I, F).
 
 % figure out what formulas are relevant for statement S:
 % obviously, its acceptance formula F and all of F's subformulas

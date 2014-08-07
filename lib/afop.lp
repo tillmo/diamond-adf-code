@@ -37,12 +37,21 @@
 
 s(A) :- arg(A).
 
-valid(A, I) :- arg(A), step(I), not attacked_by_t_or_u(A, I).
+aaf_ok(A, B, I) :- att(B, A), f(B, I).
+aaf_ok(A, B, I) :- s(A), s(B), step(I), not att(B, A).
 
-attacked_by_t_or_u(A, I) :- step(I), att(B, A), t(B).
-attacked_by_t_or_u(A, I) :- step(I), att(B, A), u(B).
+aafu_ok(A, B, I) :- att(B, A), f(B, I).
+aafu_ok(A, B, I) :- att(B, A), u(B, I).
+aafu_ok(A, B, I) :- s(A), s(B), step(I), not att(B, A).
 
+all_attackers_f(A, I) :- step(I), s(A), aaf_ok(A, B, I) : s(B).
+all_attackers_f_or_u(A, I) :- step(I), s(A), aafu_ok(A, B, I) : s(B).
+
+valid(A, I) :- arg(A), step(I), all_attackers_f(A, I).
 unsat(A, I) :- arg(A), step(I), att(B, A), t(B).
+ref(A, I) :- unsat(A, I).
+ref(A, I) :- arg(A), step(I), att(B, A), u(B).
+sat(A, I) :- arg(A), step(I), all_attackers_f_or_u(A, I).
 
 % figure out whether step(I) is a fixpoint
 
