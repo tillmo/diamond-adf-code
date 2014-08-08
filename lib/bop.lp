@@ -24,14 +24,18 @@
 % ---------------------------
 % Definition of the ultimate characteristic operator for bipolar ADFs
 % operates directly on acceptance conditions
-% requires definition of s/1, ac/2, sup/2, att/2
+% requires definition of:
+% s/1, ac/2, sup/2, att/2 (input ADF), and
+% t/2, f/2, u/2 (input interpretation)
 %
 % usage:
 % define predicate step(I), where I is an integer
-% define t(S,I) for each S which is already labeled as t
-% define f(S,I) for each S which is already labeled as f
-% valid(S,I) represents all S which are labeled t by the operator
-% unsat(S,I) represents all S which are labeled f by the operator
+% define t(S, I) for each S that is already labeled as t
+% define f(S, I) for each S that is already labeled as f
+% define u(S, I) for each S that is neither
+% valid(S, I) holds iff S is labelled t by the operator
+% unsat(S, I) holds iff S is labelled f by the operator
+% conti(S, I) holds iff S is labelled u by the operator
 % if the input is a fixpoint for the operator, fp(I) is set, nofp(I) otherwise.
 % ---------------------------
 
@@ -40,7 +44,7 @@
 l(A, B) :- sup(A, B).
 l(A, B) :- att(A, B).
 
-up(P, S, I) :- l(P, S), step(I), not t(P, I), not f(P, I).
+up(P, S, I) :- l(P, S), step(I), u(P, I).
 
 psup(P, S, I) :- sup(P, S), up(P, S, I).
 patt(P, S, I) :- att(P, S), up(P, S, I).
@@ -52,7 +56,7 @@ patt(P, S, I) :- att(P, S), up(P, S, I).
 model(refute, S, I, P) :- patt(P, S, I).
 notModel(refute, S, I, P) :- psup(P, S, I).
 
-valid(S,I) :- ac(S, F), model(refute, S, I, F).
+valid(S, I) :- ac(S, F), model(refute, S, I, F).
 
 % to figure out whether the acceptance condition is unsatisfiable,
 % set supporters to true and attackers to false
@@ -61,7 +65,11 @@ valid(S,I) :- ac(S, F), model(refute, S, I, F).
 model(satisfy, S, I, P) :- psup(P, S, I).
 notModel(satisfy, S, I, P) :- patt(P, S, I).
 
-unsat(S,I) :- ac(S, F), notModel(satisfy, S, I, F).
+unsat(S, I) :- ac(S, F), notModel(satisfy, S, I, F).
+
+% if none of the above holds, then the acceptance condition is contingent, that is, refutable and satisfiable
+
+conti(S, I) :- ac(S, F), model(satisfy, S, I, F), notModel(refute, S, I, F).
 
 % figure out whether various interpretations are models for acceptance formulas
 % model(J, S, I, F) means that the two-valued interpretation at step I 
