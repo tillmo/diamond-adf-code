@@ -208,7 +208,7 @@ def main():
     if bipolar:
         operators=[enc['bop']]
     # if the information is insufficient, complain terribly
-    if ((not bipolar) and (not transform_to_functions)):
+    if ((not bipolar) and (not transform_to_functions) and (not args.af_input)):
         print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     # set clingo options
     clingo_options = ['0']
