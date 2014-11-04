@@ -68,9 +68,11 @@ enc = dict(
     imax = "imax.lp",
     ltype = "linktypes.lp",
     model = "model.lp",
+    naiD = "naiD.lp",
     op = "op.lp",
     opsm = "opsm.lp",
     prf = "preferred.lp",
+    prfD = "prfD.lp",
     pref = "pref.lp",
     prefpy = "pref.py",
     prio_trans = "prio_trans.lp",
@@ -159,6 +161,7 @@ def main():
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
     parser.add_argument('-nai', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
+    parser.add_argument('-naiD', '--naive-disjunctive', help='compute the naive interpretations (via a disjunctive encoding)', action='store_true', dest='naive_disjunctive')
     parser.add_argument('-stg', '--stage', help='compute the stage interpretations', action='store_true', dest='stage')
     parser.add_argument('-sem', '--semi-model', help='compute the semi-model interpretations', action='store_true', dest='semimodel')
     parser.add_argument('-mod', '--model', help='compute the two-valued models', action='store_true', dest='model')
@@ -167,6 +170,7 @@ def main():
     parser.add_argument('-com', '--complete', help='compute the complete interpretations', action='store_true', dest='complete')
     parser.add_argument('-adm', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
+    parser.add_argument('-prfD', '--preferred-disjunctive', help='compute the preferred interpretations (via a disjunctive encoding)', action='store_true', dest='preferred_disjunctive')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
     parser.add_argument('-bc', '--bipolarity-check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
@@ -208,7 +212,7 @@ def main():
     if bipolar:
         operators=[enc['bop']]
     # if the information is insufficient, complain terribly
-    if ((not bipolar) and (not transform_to_functions) and (not args.af_input)):
+    if ((not bipolar) and (not transform_to_functions) and (not af)):
         print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     # set clingo options
     clingo_options = ['0']
@@ -297,6 +301,10 @@ def main():
         onestepsolvercall(operators+[enc['cmp']],instance,"complete interpretations:")
     if args.grounded or args.all:
         onestepsolvercall(operators+[enc['tkk'],enc['grd']],instance,"grounded interpretation:")
+    if args.naive_disjunctive or args.all:
+        onestepsolvercall(operators+[enc['naiD']],instance,"naive interpretations:")
+    if args.preferred_disjunctive or args.all:
+        onestepsolvercall(operators+[enc['prfD']],instance,"preferred interpretations:")
     if args.preferred or args.all:
         twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations")
     if args.naive or args.all:
