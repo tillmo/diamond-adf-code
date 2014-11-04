@@ -22,19 +22,17 @@
 %% cfi.lp
 %%% ---------------------------
 % compute three-valued conflict-free interpretations
+% according to the definition of Strass and Wallner 2014
 % requires base op
 % ---------------------------
 
 step(0).
 
-{t(S,0):s(S)}.
-{f(S,0):s(S)}.
+1 { t(S, 0) ; f(S, 0) ; u(S, 0) } 1 :- s(S).
 
-:- t(S,0), f(S,0).
-
-t(S) :- t(S,0).
-f(S) :- f(S,0).
-u(S) :- s(S), not t(S), not f(S).
+t(S) :- t(S, 0).
+f(S) :- f(S, 0).
+u(S) :- u(S, 0).
 
 :- t(S), unsat(S,0).
-:- f(S), not unsat(S,0).
+:- f(S), valid(S,0).
