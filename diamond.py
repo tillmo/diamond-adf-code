@@ -114,10 +114,17 @@ def initvars(cfgfile):
         config.set("Preferences","transform", transform)
         config.write(open(cfgfile,'w'))
 
+# simple dia_printing-function to only produce output appropriate to the chosen verbosity
+def dia_print(text,verb=1):
+    global verb_level
+    if verb_level >= verb:
+        print(text)
+
+        
 def onestepsolvercall(encodings,instance,headline, allmodels=True):
     global clingo_options,clstderr
-    print("==============================")
-    print(headline)
+    dia_print("==============================")
+    dia_print(headline)
     sys.stdout.flush()
     if not allmodels:
         clingo_options.remove('0')
@@ -131,8 +138,8 @@ def onestepsolvercall(encodings,instance,headline, allmodels=True):
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
     global clingo_options,clstderr
-    print("==============================")
-    print(headline)
+    dia_print("==============================")
+    dia_print(headline)
     sys.stdout.flush()
     #clingo_options= ['0']
     #clstderr=sp.DEVNULL
@@ -141,7 +148,7 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     clingo1.stdout.close()
     clingo2 = sp.Popen([clingo]+encodings2+[enc['show']]+['-']+clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
     python2.stdout.close()
-    print(clingo2.communicate()[0])    
+    dia_print(clingo2.communicate()[0])    
 
 def indicates_dung_af(instance):
     global dung_af_file_extension
@@ -156,7 +163,7 @@ def indicates_formula_representation(instance):
     return instance.endswith(formula_file_extension)
 
 def main():
-    global clingo_options,clstderr
+    global clingo_options,clstderr,verb_level
     parser= argparse.ArgumentParser(description='Program to compute different interpretations for a given ADF', prog='DIAMOND')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
@@ -213,31 +220,35 @@ def main():
         operators=[enc['bop']]
     # if the information is insufficient, complain terribly
     if ((not bipolar) and (not transform_to_functions) and (not af)):
-        print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
+        dia_print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     # set clingo options
     clingo_options = ['0']
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
         clingo_options.append('--verbose=0')
+        verb_level = 0
     elif args.verbosity == '1':
         clingo_options.append('--stats=0')
+        verb_level = 1
     elif args.verbosity == 'json':
         clingo_options.append('--outf=2')
+        verb_level = 0
     elif args.verbosity == 'debug':
         clstderr = None
+        verb_level = 2
 #    if args.adf2dadf_adm:
-#        print("==============================")
-#        print("transforming adf 2 dadf ...")
+#        dia_print("==============================")
+#        dia_print("transforming adf 2 dadf ...")
 #        with sp.Popen(clingo + " " + enc['formulatree'] + " " + instance + " 0 --outf=2", shell=True, stdout=sp.PIPE) as p:
 #            out =''
 #            for byteLine in p.stdout:
 #               out  = out + byteLine.decode(sys.stdout.encoding).strip()
-#            print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
+#            dia_print(util.formtree2aspinput(adf2dadf_adm.transform(ft.formulatree(out))))
     if args.bipolarity_check:
         onestepsolvercall([enc['bipc']],instance,"bipolarity check:",False)
     if args.compute_link_type:
-        print("==============================")
-        print("compute link-types:")
+        dia_print("==============================")
+        dia_print("compute link-types:")
         clingo_options.append('--enum-mode=brave')
         sys.stdout.flush()
         with sp.Popen([clingo,enc['ltype'],instance]+clingo_options,stderr=clstderr,shell=False) as p:
@@ -246,8 +257,8 @@ def main():
     if (transform_to_functions and do_transformation and transform=="asp"):
         tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         instance = tmp2.name
-        print("==============================")
-        print("transforming pForm ADF using ASP...")
+        dia_print("==============================")
+        dia_print("transforming pForm ADF using ASP...")
         sys.stdout.flush()
         with sp.Popen([clingo]+[enc['repr_change']]+[os.path.abspath(args.instance)]+['0'], shell=False,stdout=sp.PIPE,stderr=None) as p:
             sto = p.stdout
@@ -263,20 +274,20 @@ def main():
         tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
         filesToDelete.append(instance)
-        print("==============================")
-        print("transforming pForm ADF using Eclipse...")
+        dia_print("==============================")
+        dia_print("transforming pForm ADF using Eclipse...")
         sys.stdout.flush()
         start = time.time()
         with sp.Popen([eclipse,"-f",enc['transformpl'],"-e", "main", "--", os.path.abspath(args.instance),instance],stderr=None,shell=False) as p:
             None
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
-        print("transformation took " + elapsedstring  + " seconds")    
+        dia_print("transformation took " + elapsedstring  + " seconds")    
     if args.transformprio and do_transformation:
         tmp2 = tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
-        print("==============================")
-        print("transforming prioritized ADF...")
+        dia_print("==============================")
+        dia_print("transforming prioritized ADF...")
         sys.stdout.flush()
         start = time.time()
         wd = os.getcwd()
@@ -285,7 +296,7 @@ def main():
         os.chdir(wd)
         elapsed = (time.time() - start)
         elapsedstring = "%.3f" % (elapsed,)
-        print("transformation took " + elapsedstring  + " seconds")    
+        dia_print("transformation took " + elapsedstring  + " seconds")    
         filesToDelete.append(instance)
     if args.print_transform:
         os.system("cat " + instance)
