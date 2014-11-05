@@ -126,15 +126,11 @@ def onestepsolvercall(encodings,instance,headline, allmodels=True):
     dia_print("==============================")
     dia_print(headline)
     sys.stdout.flush()
-    if not allmodels:
-        clingo_options.remove('0')
     #clingo_options= ['0']
     #clstderr=None
     #clstderr=sp.DEVNULL
     with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
         None
-    if not allmodels:
-        clingo_options.append('0')
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
     global clingo_options,clstderr
@@ -143,7 +139,7 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     sys.stdout.flush()
     #clingo_options= ['0']
     #clstderr=sp.DEVNULL
-    clingo1 = sp.Popen([clingo]+encodings1+[enc['show']]+[instance]+['--outf=2']+clingo_options, shell=False, stdout=sp.PIPE, stderr=clstderr)
+    clingo1 = sp.Popen([clingo]+encodings1+[enc['show']]+[instance]+['--outf=2 0'], shell=False, stdout=sp.PIPE, stderr=clstderr)
     python2 = sp.Popen([python]+[enc['prefpy']],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
     clingo1.stdout.close()
     clingo2 = sp.Popen([clingo]+encodings2+[enc['show']]+['-']+clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
@@ -178,6 +174,7 @@ def main():
     parser.add_argument('-adm', '--admissible', help='compute the admissible interpretations', action='store_true', dest='admissible')
     parser.add_argument('-prf', '--preferred', help='compute the preferred interpretations', action='store_true', dest='preferred')
     parser.add_argument('-prfD', '--preferred-disjunctive', help='compute the preferred interpretations (via a disjunctive encoding)', action='store_true', dest='preferred_disjunctive')
+    parser.add_argument('-enum', '--enum', help='enumerate all models', action='store_true', dest='enumeration')
     parser.add_argument('-all', '--all', help='compute interpretations for all semantics', action='store_true', dest='all')
     parser.add_argument('-t', '--transform', help='print the transformed adf to stdout', action='store_true', dest='print_transform')
     parser.add_argument('-bc', '--bipolarity-check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
@@ -223,6 +220,8 @@ def main():
         dia_print("No input format specified or indicated! Assuming extensional representation of acceptance functions.")
     # set clingo options
     clingo_options = ['0']
+    if not args.enumeration:
+        clingo_options.remove('0')
     clstderr = sp.DEVNULL
     if args.verbosity == '0':
         clingo_options.append('--verbose=0')
