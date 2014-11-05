@@ -51,6 +51,7 @@ dung_af_file_extension = ".af"
 bipolar_file_extension = ".badf"
 formula_file_extension = ".adf"
 
+verb_level = 1
 args_cred = []
 args_scep = []
 
@@ -129,15 +130,17 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
     dia_print("==============================")
     dia_print(headline)
     if args_cred!=None:
-        print("Checking credulous acceptance of: "+args_cred[0])
-        tmp_file_content=":- not t("+args_cred[0]+")"
+        dia_print("Checking credulous acceptance of: "+args_cred[0],2)
+        dia_print("Argument is credulously accepted iff answer is SATISFIABLE",2)
+        tmp_file_content=":- not t("+args_cred[0]+")."
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
         constraints = [tmp_file.name]
         filesToDelete.append(tmp_file.name)
     elif args_scep!=None:
-        print("Checking sceptical acceptance of: "+args_scep[0])
-        tmp_file_content=":- t("+args_scep[0]+")"
+        dia_print("Checking sceptical acceptance of: "+args_scep[0],2)
+        dia_print("Argument is sceptically accepted iff answer is UNSATISFIABLE",2)
+        tmp_file_content=":- t("+args_scep[0]+")."
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
         constraints = [tmp_file.name]
@@ -184,7 +187,7 @@ def indicates_formula_representation(instance):
 def main():
     global clingo_options,clstderr,verb_level,args_cred,args_scep
     parser= argparse.ArgumentParser(description='Program to compute different interpretations for a given ADF', prog='DIAMOND')
-    parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
+    parser.add_argument('instance', metavar='INSTANCE', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
     parser.add_argument('-nai', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
     parser.add_argument('-naiD', '--naive-disjunctive', help='compute the naive interpretations (via a disjunctive encoding)', action='store_true', dest='naive_disjunctive')
@@ -257,6 +260,9 @@ def main():
     elif args.verbosity == '1':
         clingo_options.append('--stats=0')
         verb_level = 1
+    elif args.verbosity == '2':
+        clingo_options.append('--verbose=2')
+        verb_level = 2
     elif args.verbosity == 'json':
         clingo_options.append('--outf=2')
         verb_level = 0
