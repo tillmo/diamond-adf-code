@@ -51,6 +51,9 @@ dung_af_file_extension = ".af"
 bipolar_file_extension = ".badf"
 formula_file_extension = ".adf"
 
+args_cred = []
+args_scep = []
+
 # encoding filenames
 enc = dict(
     tkk = "3KK.lp",
@@ -121,16 +124,36 @@ def dia_print(text,verb=1):
         print(text)
 
         
-def onestepsolvercall(encodings,instance,headline, allmodels=True):
-    global clingo_options,clstderr
+def onestepsolvercall(encodings,instance,headline,allmodels=True):
+    global clingo_options,clstderr,args_cred,args_scep,filesToDelete
     dia_print("==============================")
     dia_print(headline)
+    if args_cred!=None:
+        print("Checking credulous acceptance of: "+args_cred[0])
+        tmp_file_content=":- not t("+args_cred[0]+")"
+        tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
+        tmp_file.write(tmp_file_content)
+        constraints = [tmp_file.name]
+        filesToDelete.append(tmp_file.name)
+    elif args_scep!=None:
+        print("Checking sceptical acceptance of: "+args_scep[0])
+        tmp_file_content=":- t("+args_scep[0]+")"
+        tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
+        tmp_file.write(tmp_file_content)
+        constraints = [tmp_file.name]
+        filesToDelete.append(tmp_file.name)
+    elif (args_scep==None and args_cred==None):
+        constraints = []
     sys.stdout.flush()
+    if not allmodels:
+        clingo_options.remove('0')
     #clingo_options= ['0']
     #clstderr=None
     #clstderr=sp.DEVNULL
-    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+clingo_options,stderr=clstderr,shell=False) as p:
+    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,shell=False) as p:
         None
+    if not allmodels:
+        clingo_options.append('0')
 
 def twostepsolvercall(encodings1,encodings2,instance,headline):
     global clingo_options,clstderr
@@ -159,7 +182,7 @@ def indicates_formula_representation(instance):
     return instance.endswith(formula_file_extension)
 
 def main():
-    global clingo_options,clstderr,verb_level
+    global clingo_options,clstderr,verb_level,args_cred,args_scep
     parser= argparse.ArgumentParser(description='Program to compute different interpretations for a given ADF', prog='DIAMOND')
     parser.add_argument('instance', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
@@ -180,6 +203,9 @@ def main():
     parser.add_argument('-bc', '--bipolarity-check', help='Check whether a given instance is bipolar or not (implies -pf)',action='store_true',dest='bipolarity_check')
     parser.add_argument('-clt', '--compute-link-types', help='compute the link types (implies instance is bipolar)', action='store_true', dest='compute_link_type')
     #parser.add_argument('-dadm', '--transform_2_dsadf_adm', help='transforms a propositional formula adf into propositional formula dung style adf (admissible)', action='store_true',  dest='adf2dadf_adm')
+    reasoning_mode = parser.add_mutually_exclusive_group()
+    reasoning_mode.add_argument('-cred', metavar='ARGUMENT', help='Check credulous acceptance of ARGUMENT', nargs=1, type=str)
+    reasoning_mode.add_argument('-scep', metavar='ARGUMENT', help='Check sceptical acceptance of ARGUMENT', nargs=1, type=str)
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-af','--argumentation-framework', help='input is a Dung argumentation framework in ASPARTIX syntax with arg/1 and att/2', action='store_true', dest='af_input')
     group.add_argument('-b','--bipolar', help='acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)', action='store_true', dest='bipolar_input')
@@ -191,6 +217,8 @@ def main():
     parser.add_argument('--version', help='prints the current version', action='version', version='%(prog)s '+ version)
     parser.add_argument('-v','--verbose', choices=['0','1','2','json','debug'], dest='verbosity', default='1', help='Control the verbosity of DIAMOND')
     args=parser.parse_args()
+    args_cred=args.cred
+    args_scep=args.scep
     tmp=tempfile.NamedTemporaryFile(delete=True)
     instance=os.path.abspath(args.instance)
     initvars(args.cfgfile)
