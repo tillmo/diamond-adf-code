@@ -136,7 +136,6 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
         tmp_file.flush()
-        tmp_file.close()
         constraints=[tmp_file.name]
         filesToDelete.append(tmp_file.name)
     elif args_scep!=None:
