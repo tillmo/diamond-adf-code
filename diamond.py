@@ -132,17 +132,20 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
     if args_cred!=None:
         dia_print("Checking credulous acceptance of: "+args_cred[0],2)
         dia_print("Argument is credulously accepted iff answer is SATISFIABLE",2)
-        tmp_file_content=":- not t("+args_cred[0]+")."
+        tmp_file_content=":- not t("+args_cred[0]+").\n"
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
-        constraints = [tmp_file.name]
+        tmp_file.flush()
+        tmp_file.close()
+        constraints=[tmp_file.name]
         filesToDelete.append(tmp_file.name)
     elif args_scep!=None:
         dia_print("Checking sceptical acceptance of: "+args_scep[0],2)
         dia_print("Argument is sceptically accepted iff answer is UNSATISFIABLE",2)
-        tmp_file_content=":- t("+args_scep[0]+")."
+        tmp_file_content=":- t("+args_scep[0]+").\n"
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
+        tmp_file.flush()
         constraints = [tmp_file.name]
         filesToDelete.append(tmp_file.name)
     elif (args_scep==None and args_cred==None):
