@@ -85,8 +85,8 @@ greater(S) :- u(S, 0), f(S, 1).
 
 inadmissible :- inadmissible(S).
 
-inadmissible(S) :- t(S, 1), ref(S, 1).
-inadmissible(S) :- f(S, 1), sat(S, 1).
+inadmissible(S) :- t(S, 1), ref(S, 0).
+inadmissible(S) :- f(S, 1), sat(S, 0).
 
 ref(S, I) :- conti(S, I).
 ref(S, I) :- unsat(S, I).
