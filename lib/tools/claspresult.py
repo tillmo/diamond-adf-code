@@ -65,16 +65,27 @@ class ClaspResult:
         res = '['
         for anss in self.answersets:
             res = res + '['
+            nofact = True
             for fact in anss:
-                res = res + fact + ','
-            res = res[:-1] + '],'
+                if fact[0] == 't':
+                    res = res + fact[2:-1] + ','
+                    nofact = False
+            if not nofact:
+                res = res[:-1]
+            res = res + '],'
         return res[:-1] + ']'
 
     def getOneICCMAoutput(self,setnbr=0):
         res = '['
+        nofact = True
         for fact in self.answersets[setnbr]:
-            res = res + fact + ','
-        return res[:-1] + ']'
+            if fact[0] == 't':
+                res = res + fact[2:-1] + ','
+                nofact=False
+        if nofact:
+            return res + ']'
+        else:
+            return res[:-1] + ']'
 
 def main():
     cr = ClaspResult(sys.stdin)
