@@ -35,6 +35,7 @@ import subprocess as sp
 import lib.tools.formulatree as ft
 #import lib.adf2dadf.adf2dadf_adm as adf2dadf_adm
 import lib.tools.utils as util
+import lib.tools.claspresult as cr
 
 version='1.0.0'
 
@@ -126,9 +127,10 @@ def dia_print(text,verb=1):
 
         
 def onestepsolvercall(encodings,instance,headline,allmodels=True):
-    global clingo_options,clstderr,args_cred,args_scep,filesToDelete
+    global clingo_options,clstdout,clstderr,args_cred,args_scep,filesToDelete,iccma
     dia_print("==============================")
     dia_print(headline)
+    decision=True
     if args_cred!=None:
         dia_print("Checking credulous acceptance of: "+args_cred[0],2)
         dia_print("Argument is credulously accepted iff answer is SATISFIABLE",2)
@@ -149,14 +151,31 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
         filesToDelete.append(tmp_file.name)
     elif (args_scep==None and args_cred==None):
         constraints = []
+        decision = False
     sys.stdout.flush()
     if not allmodels:
         clingo_options.remove('0')
     #clingo_options= ['0']
     #clstderr=None
     #clstderr=sp.DEVNULL
-    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,shell=False) as p:
-        None
+    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
+        if iccma:
+            outstring = p.communicate()[0].decode('UTF-8')
+            res = cr.ClaspResult(outstring)
+            if not res.sat:
+                dia_print('NO',0)
+            elif decision:
+                if res.sat:
+                    dia_print('YES',0)
+                else:
+                    dia_print('NO',0)
+            else:
+                if '0' in clingo_options:
+                    dia_print(res.getEnumICCMAoutput(),0)
+                else:
+                    dia_print(res.getOneICCMAoutput(),0)
+        else:
+            None
     if not allmodels:
         clingo_options.append('0')
 
@@ -167,7 +186,7 @@ def twostepsolvercall(encodings1,encodings2,instance,headline):
     sys.stdout.flush()
     #clingo_options= ['0']
     #clstderr=sp.DEVNULL
-    clingo1 = sp.Popen([clingo]+encodings1+[enc['show']]+[instance]+['--outf=2 0'], shell=False, stdout=sp.PIPE, stderr=clstderr)
+    clingo1 = sp.Popen([clingo]+encodings1+[enc['show']]+[instance]+['--outf=2']+['0'], shell=False, stdout=sp.PIPE, stderr=clstderr)
     python2 = sp.Popen([python]+[enc['prefpy']],shell=False, stdin=clingo1.stdout, stdout=sp.PIPE)
     clingo1.stdout.close()
     clingo2 = sp.Popen([clingo]+encodings2+[enc['show']]+['-']+clingo_options, shell=False, stdin=python2.stdout, stderr=clstderr)
@@ -187,7 +206,7 @@ def indicates_formula_representation(instance):
     return instance.endswith(formula_file_extension)
 
 def main():
-    global clingo_options,clstderr,verb_level,args_cred,args_scep
+    global clingo_options,clstdout,clstderr,verb_level,args_cred,args_scep,iccma
     parser= argparse.ArgumentParser(description='Program to compute different interpretations for a given ADF', prog='DIAMOND')
     parser.add_argument('instance', metavar='INSTANCE', help='Filename of the ADF instance', default='instance.dl')
     parser.add_argument('-cfi', '--conflict-free', help='compute the conflict-free interpretations', action='store_true', dest='conflict_free')
@@ -220,7 +239,7 @@ def main():
     group.add_argument('-pr','--priorities', help='acceptance functions are given as preferences among statements', action='store_true', dest='transformprio')
     parser.add_argument('-c', help='specify a config-file', action='store', dest='cfgfile', default='~/.diamond')
     parser.add_argument('--version', help='prints the current version', action='version', version='%(prog)s '+ version)
-    parser.add_argument('-v','--verbose', choices=['0','1','2','json','debug'], dest='verbosity', default='1', help='Control the verbosity of DIAMOND')
+    parser.add_argument('-v','--verbose', choices=['0','1','2','json','debug','iccma'], dest='verbosity', default='1', help='Control the verbosity of DIAMOND')
     args=parser.parse_args()
     args_cred=args.cred
     args_scep=args.scep
@@ -256,6 +275,8 @@ def main():
     if not args.enumeration:
         clingo_options.remove('0')
     clstderr = sp.DEVNULL
+    clstdout = None
+    iccma = False
     if args.verbosity == '0':
         clingo_options.append('--verbose=0')
         verb_level = 0
@@ -271,6 +292,11 @@ def main():
     elif args.verbosity == 'debug':
         clstderr = None
         verb_level = 2
+    elif args.verbosity == 'iccma':
+        verb_level = 0
+        iccma = True
+        clstdout = sp.PIPE
+        clingo_options.append('--outf=2')
 #    if args.adf2dadf_adm:
 #        dia_print("==============================")
 #        dia_print("transforming adf 2 dadf ...")

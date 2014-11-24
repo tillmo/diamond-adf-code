@@ -61,6 +61,21 @@ class ClaspResult:
             res = res + '\n'
         return res[:-1]
 
+    def getEnumICCMAoutput(self):
+        res = '['
+        for anss in self.answersets:
+            res = res + '['
+            for fact in anss:
+                res = res + fact + ','
+            res = res[:-1] + '],'
+        return res[:-1] + ']'
+
+    def getOneICCMAoutput(self,setnbr=0):
+        res = '['
+        for fact in self.answersets[setnbr]:
+            res = res + fact + ','
+        return res[:-1] + ']'
+
 def main():
     cr = ClaspResult(sys.stdin)
     print(cr.answersets)
