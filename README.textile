@@ -56,10 +56,10 @@ h3. Instances
 h3. Usage - with the DIAMOND script (recommended)
 
 pre. usage: DIAMOND [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
-pre.               [-adm] [-prf] [-all] [-t] [-bc] [-clt]
-pre.               [-af | -b | -pf | -fr | -pr] [-c CFGFILE] [--version]
-pre.               [-v {0,1,2,json,debug}]
-pre.               instance
+               [-adm] [-prf] [-all] [-t] [-bc] [-clt]
+               [-af | -b | -pf | -fr | -pr] [-c CFGFILE] [--version]
+               [-v {0,1,2,json,debug}]
+               instance
 
 Program to compute different interpretations for a given ADF
 
