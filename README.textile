@@ -1,28 +1,25 @@
 h1. DIAMOND
 
-h3. DIAlectical MOdels eNcodiNg
+h2. DIAlectical MOdels eNcodiNg
 
 
-bq. Requirements
+h3. Requirements
 
 * Python (3.3.0)
 * clingo (4.3.0)
 * eclipse-prolog (6.1) (optional)
 * to use the CL-Script "diamond.py" a Unix-like operating system is needed
  
-bq. Installation
+h3. Installation
 
 * The newest version is available at "Sourceforge":https://sourceforge.net/projects/diamond-adf
 * Extract the tar-ball to a directory
-* At the first run of the diamond.py script a config file is created (at the 
-    specified location via the -c option or at ~/.diamond per default)
-* If the required programs are not in the $PATH environment, set their locations 
-    in the configuration file
-* In the configuration file, you can indicate how ADFs in propositional formula representation should be transformed to the extensional representation:
-Either via ASP, in which case transform = "asp", or via ECLiPSe Prolog, then transform = "eclipse". (we recommend to use asp, which is the default value)
+* At the first run of the diamond.py script a config file is created (at the specified location via the -c option or at ~/.diamond per default)
+* If the required programs are not in the $PATH environment, set their locations in the configuration file
+* In the configuration file, you can indicate how ADFs in propositional formula representation should be transformed to the extensional representation:<br />Either via ASP, in which case transform = "asp", or via ECLiPSe Prolog, then transform = "eclipse". (we recommend to use asp, which is the default value)
 
 
-bq. Configuration
+h3. Configuration
 
 The default configuration file looks as follows:
 [Path]
@@ -34,7 +31,7 @@ python = python
 transform = "asp"
 
 
-bq. Instances
+h3. Instances
 
  ADFs are represented by text files with a special syntax.
  Statements are declared via predicate s/1.
@@ -56,13 +53,13 @@ bq. Instances
  If neither is specified, then DIAMOND will complain, but assume case 3.
 
 
-bq. Usage - with the DIAMOND script (recommended)
+h3. Usage - with the DIAMOND script (recommended)
 
-usage: DIAMOND [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
-               [-adm] [-prf] [-all] [-t] [-bc] [-clt]
-               [-af | -b | -pf | -fr | -pr] [-c CFGFILE] [--version]
-               [-v {0,1,2,json,debug}]
-               instance
+pre. usage: DIAMOND [-h] [-cfi] [-nai] [-stg] [-sem] [-mod] [-stm] [-grd] [-com]
+pre.               [-adm] [-prf] [-all] [-t] [-bc] [-clt]
+pre.               [-af | -b | -pf | -fr | -pr] [-c CFGFILE] [--version]
+pre.               [-v {0,1,2,json,debug}]
+pre.               instance
 
 Program to compute different interpretations for a given ADF
 
@@ -70,36 +67,36 @@ positional arguments:
  | instance | Filename of the ADF instance |
 
 optional arguments:
- | -h, --help | show this help message and exit |
- | -cfi, --conflict-free| compute the conflict-free interpretations|
- | -nai, --naive        | compute the naive interpretations|
- | -stg, --stage        | compute the stage interpretations|
- | -sem, --semi-model   | compute the semi-model interpretations|
- | -mod, --model        | compute the two-valued models|
- | -stm, --stablemodel  | compute the stable models|
- | -grd, --grounded     | compute the grounded interpretation|
- | -com, --complete     | compute the complete interpretations|
- | -adm, --admissible   | compute the admissible interpretations|
- | -prf, --preferred    | compute the preferred interpretations|
- | -all, --all          | compute interpretations for all semantics|
- | -t, --transform      | print the transformed adf to stdout|
- | -bc, --bipolarity-check | Check whether a given instance is bipolar or not (implies -pf)|
- | -clt, --compute-link-types | compute the link types (implies instance is bipolar)|
- | -af, --argumentation-framework| input is a Dung argumentation framework in ASPARTIX syntax with arg/1 and att/2|
- | -b, --bipolar        | acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)|
- | -pf, --propositional-formulas| acceptance functions are given as propositional formulas|
- | -fr, --functional-representation| acceptance functions are given in extensional form|
- | -pr, --priorities   |  acceptance functions are given as preferences among statements|
+ | -h, ==--==help | show this help message and exit |
+ | -cfi, ==--==conflict-free| compute the conflict-free interpretations|
+ | -nai, ==--==naive        | compute the naive interpretations|
+ | -stg, ==--==stage        | compute the stage interpretations|
+ | -sem, ==--==semi-model   | compute the semi-model interpretations|
+ | -mod, ==--==model        | compute the two-valued models|
+ | -stm, ==--==stablemodel  | compute the stable models|
+ | -grd, ==--==grounded     | compute the grounded interpretation|
+ | -com, ==--==complete     | compute the complete interpretations|
+ | -adm, ==--==admissible   | compute the admissible interpretations|
+ | -prf, ==--==preferred    | compute the preferred interpretations|
+ | -all, ==--==all          | compute interpretations for all semantics|
+ | -t, ==--==transform      | print the transformed adf to stdout|
+ | -bc, ==--==bipolarity-check | Check whether a given instance is bipolar or not (implies -pf)|
+ | -clt, ==--==compute-link-types | compute the link types (implies instance is bipolar)|
+ | -af, ==--==argumentation-framework| input is a Dung argumentation framework in ASPARTIX syntax with arg/1 and att/2|
+ | -b, ==--==bipolar        | acceptance functions are given as propositional formulas, attacking and supporting links are specified (implies -pf)|
+ | -pf, ==--==propositional-formulas| acceptance functions are given as propositional formulas|
+ | -fr, ==--==functional-representation| acceptance functions are given in extensional form|
+ | -pr, ==--==priorities   |  acceptance functions are given as preferences among statements|
  | -c CFGFILE          |  specify a config-file|
- | --version           |  prints the current version|
+ | ==--==version           |  prints the current version|
  | -v {0,1,2,json,debug}, --verbose {0,1,2,json,debug| Control the verbosity of DIAMOND|
 
-bq. Usage - without the DIAMOND script
+h3. Usage - without the DIAMOND script
 
 To compute the models without the DIAMOND script use the following commands 
 (Note: those are Unix-Shell commands. For windows use the appropriate commands.)
 
-|_. semantics      |_. asp-encodings needed                                 | 
+|_. semantics    |_. asp-encodings needed| 
 | conflict-free  | base.lp, op.lp, cfi.lp                               |
 | model          | base.lp, cf.lp, model.lp                             | 
 | stable model   | base.lp, cf.lp, model.lp, opsm.lp, 3KK.lp, stable.lp | 
@@ -144,7 +141,7 @@ Finally, DIAMOND can also deal with Dung argumentation frameworks in ASPARTIX sy
 For this, just use afop.lp instead of bop.lp in the table above.
 
 
-bq. Bipolarity options:
+h3. Bipolarity options:
 
 The bipolarity check determines whether a given ADF in propositional formula 
 respresentation is bipolar or not. DIAMOND will state "UNSATISFIABLE" if it is bipolar 
