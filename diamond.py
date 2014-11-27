@@ -153,7 +153,7 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
         constraints = []
         decision = False
     sys.stdout.flush()
-    if not allmodels:
+    if not allmodels and '0' in clingo_options:
         clingo_options.remove('0')
     #clingo_options= ['0']
     #clstderr=None
