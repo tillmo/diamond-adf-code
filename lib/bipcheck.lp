@@ -61,22 +61,20 @@ f(s2, P, S, X) :- f(s1, P, S, X), X != P.
 t(a2, P, S, X) :- t(a1, P, S, X).
 f(a2, P, S, X) :- f(a1, P, S, X), X != P.
 
-% a link could possibly be attacking/supporting if there is a respective witness
-possibly_attacking(P, S) :- ac(S, F), model(s1, P, S, F), notModel(s2, P, S, F).
-possibly_supporting(P, S) :- ac(S, F), notModel(a1, P, S, F), model(a2, P, S, F).
+% a link is definitely not supporting/attacking if there is a witness for that
+not_supporting(P, S) :- ac(S, F), model(s1, P, S, F), notModel(s2, P, S, F).
+not_attacking(P, S) :- ac(S, F), notModel(a1, P, S, F), model(a2, P, S, F).
 
-% a link is dependent if it cannot possibly be supporting or attacking
-dependent(P, S) :- l(P, S), not possibly_supporting(P, S), not possibly_attacking(P, S).
+% a link is dependent if it is neither supporting nor attacking
+dependent(P, S) :- l(P, S), not_supporting(P, S), not_attacking(P, S).
 
 % the ADF is not bipolar if some link is dependent, and bipolar otherwise
 not_bipolar :- dependent(P, S).
 
-bipolar :- not not_bipolar.
+:- not not_bipolar.
 
-:- not_bipolar.
-
-% if the ADF is bipolar, say so
-#show bipolar/0.
+% for non-bipolar ADFs show dependent links
+#show dependent/2.
 
 % define relevant interpretations for the model relation computation
 
@@ -88,7 +86,7 @@ type(a2).
 % compute the model relation
 
 model(J, P, S, c(v)) :- relevant(S, c(v)), l(P, S), type(J).
-model(J, P, S, P) :- t(J, P, S, P).
+model(J, P, S, X) :- s(X), relevant(S, X), t(J, P, S, X).
 model(J, P, S, neg(F)) :- relevant(S, neg(F)), notModel(J, P, S, F).
 model(J, P, S, and(F,G)) :- relevant(S, and(F,G)), model(J, P, S, F), model(J, P, S, G).
 model(J, P, S, or(F,G)) :- relevant(S, or(F,G)), model(J, P, S, F).
@@ -101,7 +99,7 @@ model(J, P, S, xor(F,G)) :- relevant(S, xor(F,G)), model(J, P, S, F), notModel(J
 model(J, P, S, xor(F,G)) :- relevant(S, xor(F,G)), model(J, P, S, G), notModel(J, P, S, F).
 
 notModel(J, P, S, c(f)) :- relevant(S, c(f)), l(P, S), type(J).
-notModel(J, P, S, P) :- f(J, P, S, P).
+notModel(J, P, S, X) :- s(X), relevant(S, X), f(J, P, S, X).
 notModel(J, P, S, neg(F)) :- relevant(S, neg(F)), model(J, P, S, F).
 notModel(J, P, S, or(F,G)) :- relevant(S, or(F,G)), notModel(J, P, S, F), notModel(J, P, S, G).
 notModel(J, P, S, and(F,G)) :- relevant(S, and(F,G)), notModel(J, P, S, F).
