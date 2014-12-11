@@ -43,6 +43,8 @@ step(0).
 
 % guess another interpretation that contains at least as much information
 
+step(1).
+
 t(S, 1) | f(S, 1) | u(S, 1) :- u(S, 0).
 
 t(S, 1) :- t(S, 0).

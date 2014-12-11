@@ -384,13 +384,13 @@ def main():
     if args.preferred_disjunctive or args.all:
         onestepsolvercall(operators+[enc['prfD']],instance,"preferred interpretations:")
     if args.preferred or args.all:
-        twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations")
+        twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations:")
     if args.naive or args.all:
         twostepsolvercall(operators+[enc['cfi']],[enc['imax']],instance,"naive interpretations:")
     if args.stage or args.all:
         twostepsolvercall(operators+[enc['cfi']],[enc['rmax']],instance,"stage interpretations:")
     if args.semimodel or args.all:
-        twostepsolvercall(operators+[enc['cmp']],[enc['rmax']],instance,"semi-model interpretations")
+        twostepsolvercall(operators+[enc['cmp']],[enc['rmax']],instance,"semi-model interpretations:")
     for fileToDelete in filesToDelete:
         os.remove(fileToDelete)
 if __name__ == "__main__":
