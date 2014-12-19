@@ -83,8 +83,10 @@ enc = dict(
     prio_trans = "prio_trans.lp",
     repr_change = "repr_change.lp",
     rmax = "rmax.lp",
+    semD = "semD.lp",
     show = "show.lp",
     stb = "stable.lp",
+    stgD = "stgD.lp",
     tb2badf = "theorybase2badf.lp",
     transformpl = "transform.pl",
     transformpy = "transform.py",
@@ -214,7 +216,9 @@ def main():
     parser.add_argument('-nai', '--naive', help='compute the naive interpretations', action='store_true', dest='naive')
     parser.add_argument('-naiD', '--naive-disjunctive', help='compute the naive interpretations (via a disjunctive encoding)', action='store_true', dest='naive_disjunctive')
     parser.add_argument('-stg', '--stage', help='compute the stage interpretations', action='store_true', dest='stage')
+    parser.add_argument('-stgD', '--stage-disjunctive', help='compute the stage interpretations (via a disjunctive encoding)', action='store_true', dest='stage_disjunctive')
     parser.add_argument('-sem', '--semi-model', help='compute the semi-model interpretations', action='store_true', dest='semimodel')
+    parser.add_argument('-semD', '--semi-model-disjunctive', help='compute the semi-model interpretations (via a disjunctive encoding)', action='store_true', dest='semimodel_disjunctive')
     parser.add_argument('-mod', '--model', help='compute the two-valued models', action='store_true', dest='model')
     parser.add_argument('-stm', '--stablemodel', help='compute the stable models', action='store_true', dest='smodel')
     parser.add_argument('-grd', '--grounded', help='compute the grounded interpretation', action='store_true', dest='grounded')
@@ -253,8 +257,8 @@ def main():
     # compute some handy Booleans which are needed later
     af = (indicates_dung_af(args.instance) or args.af_input)
     bipolar = (indicates_bipolarity(args.instance) or args.bipolar_input)
-    model_only = args.model and not args.conflict_free and not args.naive and not args.stage and not args.semimodel and not args.smodel and not args.grounded and not args.complete and not args.admissible and not args.preferred and not args.all and not args.print_transform
-    do_transformation = args.conflict_free or args.naive or args.stage or args.semimodel or args.smodel or args.grounded or args.complete or args.admissible or args.preferred or args.all or args.print_transform
+    model_only = args.model and not args.conflict_free and not args.naive and not args.stage and not args.semimodel and not args.naive_disjunctive and not args.stage_disjunctive and not args.semimodel_disjunctive and not args.smodel and not args.grounded and not args.complete and not args.admissible and not args.preferred and not args.preferred_disjunctive and not args.all and not args.print_transform
+    do_transformation = args.conflict_free or args.naive or args.stage or args.semimodel or args.naive_disjunctive or args.stage_disjunctive or args.semimodel_disjunctive or args.smodel or args.grounded or args.complete or args.admissible or args.preferred or args.preferred_disjunctive or args.all or args.print_transform
     transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
     # assign the correct encodings of the semantics
     model_encoding=[enc['base'],enc['cf'],enc['model']]
@@ -383,6 +387,10 @@ def main():
         onestepsolvercall(operators+[enc['naiD']],instance,"naive interpretations:")
     if args.preferred_disjunctive or args.all:
         onestepsolvercall(operators+[enc['prfD']],instance,"preferred interpretations:")
+    if args.stage_disjunctive or args.all:
+        onestepsolvercall(operators+[enc['stgD']],instance,"stage interpretations:")
+    if args.semimodel_disjunctive or args.all:
+        onestepsolvercall(operators+[enc['semD']],instance,"semi-model interpretations:")
     if args.preferred or args.all:
         twostepsolvercall(operators+[enc['cmp']],[enc['imax']],instance,"preferred interpretations:")
     if args.naive or args.all:
