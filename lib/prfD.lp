@@ -65,8 +65,8 @@ ok :- not ok.
 % (1) the interpretation is the same
 ok :- equal.
 
-% (2) the interpretation contains more information, but is not admissible
-ok :- greater, inadmissible, incomplete.
+% (2) the interpretation contains more information, but is not admissible or not complete
+ok :- greater, inadmissible.
 
 % the second interpretation equals the first one if they agree on all truth values for all statements
 
@@ -89,11 +89,6 @@ inadmissible :- inadmissible(S).
 
 inadmissible(S) :- t(S, 1), ref(S, 1).
 inadmissible(S) :- f(S, 1), sat(S, 1).
-
-incomplete :- incomplete(S).
-
-incomplete(S) :- unsat(S, 1), t(S, 1).
-incomplete(S) :- valid(S, 1), f(S, 1).
 
 ref(S, I) :- conti(S, I).
 ref(S, I) :- unsat(S, I).
