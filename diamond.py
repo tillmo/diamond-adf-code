@@ -85,6 +85,7 @@ enc = dict(
     rmax = "rmax.lp",
     semD = "semD.lp",
     show = "show.lp",
+    show_iccma = "show_iccma.lp",
     stb = "stable.lp",
     stgD = "stgD.lp",
     tb2badf = "theorybase2badf.lp",
@@ -161,8 +162,8 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
     #clingo_options= ['0']
     #clstderr=None
     #clstderr=sp.DEVNULL
-    with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
-        if iccma:
+    if iccma:
+        with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
             outstring = p.communicate()[0].decode('UTF-8')
             res = cr.ClaspResult(outstring)
             if not res.sat:
@@ -177,7 +178,8 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
                     dia_print(res.getEnumICCMAoutput(),0)
                 else:
                     dia_print(res.getOneICCMAoutput(),0)
-        else:
+    else:
+        with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
             None
     if not allmodels:
         clingo_options.append('0')
@@ -307,6 +309,7 @@ def main():
         iccma = True
         clstdout = sp.PIPE
         clingo_options.append('--outf=2')
+        clingo_options.append('--project')
 #    if args.adf2dadf_adm:
 #        dia_print("==============================")
 #        dia_print("transforming adf 2 dadf ...")
