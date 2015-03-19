@@ -52,7 +52,7 @@ function solver
 
 	######################################################################
 	## some abbreviations
-	diamond="python3.4 ./$(dirname $0)/diamond.py -v iccma"
+	diamond="python3.4 ./$(dirname $0)/diamond.py -v iccma -af"
 	argument="\"$additional\""
 
 	######################################################################
