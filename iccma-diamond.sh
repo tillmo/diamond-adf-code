@@ -87,30 +87,30 @@ function solver
 	## CREDULOUS
 	elif [ "$format" = "apx" -a "$problem" = "DC-PR" ]
 	then
-	    $diamond -e -prfD -cred $argument
+	    $diamond -e -prfD -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-ST" ]
 	then
-	    $diamond -e -mod -cred $argument
+	    $diamond -e -mod -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-CO" ]
 	then
-	    $diamond -e -com -cred $argument
+	    $diamond -e -com -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-GR" ]
 	then
-	    $diamond -e -grd -cred $argument
+	    $diamond -e -grd -cred $argument "$fileinput"
 	######################################################################
 	## SCEPTICAL
 	elif [ "$format" = "apx" -a "$problem" = "DS-PR" ]
 	then
-	    $diamond -e -prfD -scep $argument
+	    $diamond -e -prfD -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-ST" ]
 	then
-	    $diamond -e -mod -scep $argument
+	    $diamond -e -mod -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-CO" ]
 	then
-	    $diamond -e -com -scep $argument
+	    $diamond -e -com -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-GR" ]
 	then
-	    $diamond -e -grd -scep $argument
+	    $diamond -e -grd -scep $argument "$fileinput"
 	else
 	    echoerr "unsupported format or problem"
 	    exit 1
@@ -128,8 +128,6 @@ function parse_output
 {
 	problem=$1
 	output="$2"
-
-	echoerr "$output"
 
 	echo "$output"
 }
