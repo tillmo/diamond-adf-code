@@ -37,7 +37,7 @@ import lib.tools.formulatree as ft
 import lib.tools.utils as util
 import lib.tools.claspresult as cr
 
-version='1.0.0'
+version='2.0.0'
 
 # default variables
 encdir = "lib"
