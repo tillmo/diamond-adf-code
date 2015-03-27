@@ -6,4 +6,4 @@
 ##############################################################
 
 cd ..
-tar -cjf diamond.tar.bz2 diamond/README diamond/LICENSE diamond/diamond.py diamond/lib/*.py diamond/lib/*.pl diamond/lib/*.lp diamond/lib/tools/*.lp diamond/lib/tools/*.py diamond/lib/adf2dadf/*.py
+tar -cjf diamond.tar.bz2 diamond/README diamond/iccma-diamond.sh diamond/LICENSE diamond/diamond.py diamond/lib/*.py diamond/lib/*.pl diamond/lib/*.lp diamond/lib/tools/*.lp diamond/lib/tools/*.py diamond/lib/adf2dadf/*.py
