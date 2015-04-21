@@ -37,7 +37,7 @@ import lib.tools.formulatree as ft
 import lib.tools.utils as util
 import lib.tools.claspresult as cr
 
-version='2.0.0'
+version='2.0.1'
 
 # default variables
 encdir = "lib"
@@ -138,21 +138,27 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
     if args_cred!=None:
         dia_print("Checking credulous acceptance of: "+args_cred[0],2)
         dia_print("Argument is credulously accepted iff answer is SATISFIABLE",2)
+        if args_cred[0].startswith('"') and args_cred[0].endswith('"'):
+            args_cred[0] = (args_cred[0])[1:-1]
         tmp_file_content=":- not t("+args_cred[0]+").\n"
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
         tmp_file.flush()
         constraints=[tmp_file.name]
         filesToDelete.append(tmp_file.name)
+        switchbool=False
     elif args_scep!=None:
         dia_print("Checking sceptical acceptance of: "+args_scep[0],2)
         dia_print("Argument is sceptically accepted iff answer is UNSATISFIABLE",2)
+        if args_scep[0].startswith('"') and args_scep[0].endswith('"'):
+            args_scep[0] = (args_scep[0])[1:-1]
         tmp_file_content=":- t("+args_scep[0]+").\n"
         tmp_file = tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
         tmp_file.write(tmp_file_content)
         tmp_file.flush()
         constraints = [tmp_file.name]
         filesToDelete.append(tmp_file.name)
+        switchbool=True
     elif (args_scep==None and args_cred==None):
         constraints = []
         decision = False
@@ -169,7 +175,7 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
             if not res.sat:
                 dia_print('NO',0)
             elif decision:
-                if res.sat:
+                if res.sat!=switchbool: # a very bad hack to invert the answer of the ASP solver only in some cases (i.e. sceptical reasoning)
                     dia_print('YES',0)
                 else:
                     dia_print('NO',0)

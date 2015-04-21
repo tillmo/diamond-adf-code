@@ -27,7 +27,7 @@ echoerr()
 # output information
 function information
 {
-	echo "DIAMOND 1.1.0"
+	echo "DIAMOND 2.0.0"
 	echo "Stefan Ellmauthaler <ellmauthaler@informatik.uni-leipzig.de>"
 	echo "Hannes Strass <strass@informatik.uni-leipzig.de>"
 }
@@ -52,7 +52,8 @@ function solver
 
 	######################################################################
 	## some abbreviations
-	diamond="python3.4 ./$(dirname $0)/diamond.py -v iccma -af"
+	python="python3.4"
+	diamond="$python ./$(dirname $0)/diamond.py -v iccma -af"
 	argument="\"$additional\""
 
 	######################################################################
@@ -87,30 +88,30 @@ function solver
 	## CREDULOUS
 	elif [ "$format" = "apx" -a "$problem" = "DC-PR" ]
 	then
-	    $diamond -e -prfD -cred $argument "$fileinput"
+	    $diamond -prfD -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-ST" ]
 	then
-	    $diamond -e -mod -cred $argument "$fileinput"
+	    $diamond -mod -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-CO" ]
 	then
-	    $diamond -e -com -cred $argument "$fileinput"
+	    $diamond -com -cred $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-GR" ]
 	then
-	    $diamond -e -grd -cred $argument "$fileinput"
+	    $diamond -grd -cred $argument "$fileinput"
 	######################################################################
 	## SCEPTICAL
 	elif [ "$format" = "apx" -a "$problem" = "DS-PR" ]
 	then
-	    $diamond -e -prfD -scep $argument "$fileinput"
+	    $diamond -prfD -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-ST" ]
 	then
-	    $diamond -e -mod -scep $argument "$fileinput"
+	    $diamond -mod -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-CO" ]
 	then
-	    $diamond -e -com -scep $argument "$fileinput"
+	    $diamond -com -scep $argument "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-GR" ]
 	then
-	    $diamond -e -grd -scep $argument "$fileinput"
+	    $diamond -grd -scep $argument "$fileinput"
 	else
 	    echoerr "unsupported format or problem"
 	    exit 1
