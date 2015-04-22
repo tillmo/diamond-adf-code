@@ -37,7 +37,7 @@ import lib.tools.formulatree as ft
 import lib.tools.utils as util
 import lib.tools.claspresult as cr
 
-version='2.0.1'
+version='2.0.2'
 
 # default variables
 encdir = "lib"
@@ -172,9 +172,9 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
         with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
             outstring = p.communicate()[0].decode('UTF-8')
             res = cr.ClaspResult(outstring)
-            if not res.sat:
-                dia_print('NO',0)
-            elif decision:
+#            if not res.sat:
+#                dia_print('NO',0)
+            if decision:
                 if res.sat!=switchbool: # a very bad hack to invert the answer of the ASP solver only in some cases (i.e. sceptical reasoning)
                     dia_print('YES',0)
                 else:
