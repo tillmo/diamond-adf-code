@@ -172,7 +172,7 @@ def onestepsolvercall(encodings,instance,headline,allmodels=True):
         with sp.Popen([clingo]+encodings+[enc['show']]+[instance]+constraints+clingo_options,stderr=clstderr,stdout=clstdout,shell=False) as p:
             outstring = p.communicate()[0].decode('UTF-8')
             res = cr.ClaspResult(outstring)
-            if not res.sat:
+            if (not decision) and (not res.sat):
                 dia_print('NO',0)
             elif decision:
                 if res.sat!=switchbool: # a very bad hack to invert the answer of the ASP solver only in some cases (i.e. sceptical reasoning)
