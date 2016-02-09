@@ -2,7 +2,7 @@
 
 
 
-void UsageOutput::usage(TCLAP::CmdLineInterface& c)
+void diamond::UsageOutput::usage(TCLAP::CmdLineInterface& c)
 {
   std::cout << "USAGE:" << std::endl;
   _shortUsage(c,std::cout);
@@ -10,12 +10,12 @@ void UsageOutput::usage(TCLAP::CmdLineInterface& c)
   _longUsage(c,std::cout);
 }
 
-void UsageOutput::version(TCLAP::CmdLineInterface& c)
+void diamond::UsageOutput::version(TCLAP::CmdLineInterface& c)
 {
   std::cout << c.getProgramName() << " " << c.getVersion() << std::endl;
 }
 
-void UsageOutput::failure(TCLAP::CmdLineInterface& c, TCLAP::ArgException& e)
+void diamond::UsageOutput::failure(TCLAP::CmdLineInterface& c, TCLAP::ArgException& e)
 {
   std::cerr << "PARSE ERROR: " << e.argId() << std::endl
             << "  " << e.error() << std::endl;
@@ -29,7 +29,7 @@ void UsageOutput::failure(TCLAP::CmdLineInterface& c, TCLAP::ArgException& e)
   exit(1);
 }
 
-void UsageOutput::_shortUsage(TCLAP::CmdLineInterface& c, std::ostream& os) const
+void diamond::UsageOutput::_shortUsage(TCLAP::CmdLineInterface& c, std::ostream& os) const
 {
   std::list<TCLAP::Arg*> argList = c.getArgList();
   TCLAP::XorHandler xorHandler = c.getXorHandler();
@@ -55,7 +55,7 @@ void UsageOutput::_shortUsage(TCLAP::CmdLineInterface& c, std::ostream& os) cons
   _prettyprint(c,s,os,LINELENGTH,c.getProgramName().length()+1,INDENT,LINELENGTH/2 > c.getProgramName().length()+INDENT);
 }
 
-void UsageOutput::_longUsage(TCLAP::CmdLineInterface& c, std::ostream& os) const
+void diamond::UsageOutput::_longUsage(TCLAP::CmdLineInterface& c, std::ostream& os) const
 {
   std::list<TCLAP::Arg*> argList = c.getArgList();
   TCLAP::XorHandler xorHandler = c.getXorHandler();
@@ -85,7 +85,7 @@ void UsageOutput::_longUsage(TCLAP::CmdLineInterface& c, std::ostream& os) const
   }
 }
 
-void UsageOutput::_prettyprint(TCLAP::CmdLineInterface& c, const std::string& str, std::ostream& os, int maxlength, int indentlength, int offset, bool prettyindent) const
+void diamond::UsageOutput::_prettyprint(TCLAP::CmdLineInterface& c, const std::string& str, std::ostream& os, int maxlength, int indentlength, int offset, bool prettyindent) const
 {
   std::string s(str);
   std::string indent(indentlength,' ');

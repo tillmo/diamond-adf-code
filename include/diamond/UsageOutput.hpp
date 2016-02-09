@@ -1,9 +1,13 @@
+#ifndef DIAMOND_USAGEOUTPUT_HPP
+#define DIAMOND_USAGEOUTPUT_HPP
+
 #include <tclap/ArgException.h>
 #include <tclap/CmdLineInterface.h>
 #include <tclap/CmdLineOutput.h>
 #include <tclap/StdOutput.h>
 #include <iostream>
 
+namespace diamond{
 class UsageOutput:public TCLAP::CmdLineOutput{
 
 
@@ -20,3 +24,6 @@ private:
   static const int LINELENGTH = 80;
   static const int INDENT = 2;
 };
+}
+
+#endif /* DIAMOND_USAGEOUTPUT_HPP */
