@@ -14,6 +14,7 @@ public:
   int i;
   Foo(const int& i){
     this->i = i;
+
   }
 
   bool mmh(Gringo::Model const &m){
@@ -23,6 +24,8 @@ public:
     std::cout << this->i << std::endl;
     return true;
   }
+
+
 };
 
 void example1(){
@@ -39,7 +42,24 @@ void example1(){
 
 
   lib.solve(std::bind(&Foo::mmh, foo, std::placeholders::_1),{});
-  diamond::Model test;
+}
+
+void example2(diamond::AppOptions& appop){
+  std::vector<char const *> args{"clingo", "-e", "brave", nullptr};
+  DefaultGringoModule module;
+  Gringo::Scripts scripts(module);
+  ClingoLib lib(scripts, args.size() - 2, args.data());
+
+  std::string repr_change =
+    #include DIA_ENC_REPR_CHANGE
+      ;
+
+  Foo foo(1);
+  lib.load(appop.getInstance().absoluteFilePath().toStdString());
+  lib.add("repr_change",{},repr_change);
+  lib.ground({{"base",{}},{"repr_change",{}}},nullptr);
+
+  lib.solve(std::bind(&Foo::mmh, foo, std::placeholders::_1),{});
 }
 
 int main(int argc, char**argv){
@@ -72,7 +92,6 @@ int main(int argc, char**argv){
     std::cout << instance.getValue() << std::endl;
     iformat = diamond::AppOptions::getInputFormat(inputformat.getValue(),allowedValues);
     diamond::AppOptions appoptions(verbosity.getValue(),instance.getValue(), enumerate.getValue(),iformat);
-    example1();
   }catch(const TCLAP::ArgException& e){
     std::cerr << e.what() << std::endl;
   }catch(const diamond::InitException& e){

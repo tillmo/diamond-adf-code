@@ -2,15 +2,24 @@
 #define DIAMOND_MODEL_HPP
 
 #include <diamond/semantics/ISemantics.hpp>
+#include <diamond/config.h>
+#include <clingo/clingocontrol.hh>
+#include <functional>
 
 namespace diamond{
+/**
+ * @brief The Model class
+ * one step call, no transformation neeeded
+ */
 class Model : public diamond::ISemantics{
+protected:
+  //diamond::AppOptions* appOpt;
 public:
-
-
+  Model(diamond::AppOptions* appOpt):ISemantics(appOpt){}
   // ISemantics interface
 public:
-  bool needsFunc(){};
+  void solve();
+  bool needsFunc();
 };
 }
 

@@ -45,7 +45,7 @@ set(DIAMOND_CPP ${DIAMOND_SRC}/main.cpp
 
 # generate header-locations for qtcreator
 if(DIAMOND_QTCREATOR)
-file(GLOB DIAMOND_HEADERS "include/diamond/*.hpp" "include/diamond/*/*.hpp")
+file(GLOB DIAMOND_HEADERS "include/*.hpp" "include/diamond/*.hpp" "include/diamond/*/*.hpp")
 add_executable(diamond ${DIAMOND_CPP} ${DIAMOND_HEADERS})
 else()
 add_executable(diamond ${DIAMOND_CPP})
