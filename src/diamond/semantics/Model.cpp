@@ -16,6 +16,7 @@ void diamond::Model::solve()
   ClingoLib lib(scripts, args.size() - 2, args.data());
   appOpt->getProgInstance(this,lib);
 
+
   // add encodings:
   switch (appOpt->getInputformat()){
   case diamond::InputFormat::AF:{

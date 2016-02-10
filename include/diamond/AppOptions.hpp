@@ -2,8 +2,8 @@
 #define DIAMOND_APPOPTIONS_HPP
 
 #include <functional>
-#include <qt/QtCore/QFile>
-#include <qt/QtCore/QFileInfo>
+#include <QFile>
+#include <QFileInfo>
 #include <diamond/InitException.hpp>
 #include <clingo/clingocontrol.hh>
 #include <diamond/semantics/ISemantics.hpp>
