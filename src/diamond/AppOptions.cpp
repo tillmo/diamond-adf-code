@@ -86,6 +86,12 @@ void diamond::AppOptions::addSemantics(ISemantics* semantics)
   this->semantics.push_back(semantics);
 }
 
+void diamond::AppOptions::solveSemantics()
+{
+  for (auto& semantics : this->semantics)
+    semantics->solve();
+}
+
 int diamond::AppOptions::getInputformat() const
 {
   return inputformat;

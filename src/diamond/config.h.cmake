@@ -23,6 +23,7 @@
 #define DIA_ENC_OPSM "@PROJECT_SOURCE_DIR@/lib_enc/opsm.lp"
 #define DIA_ENC_REPR_CHANGE "@PROJECT_SOURCE_DIR@/lib_enc/repr_change.lp"
 #define DIA_ENC_RMAX "@PROJECT_SOURCE_DIR@/lib_enc/rmax.lp"
+#define DIA_ENC_SHOW "@PROJECT_SOURCE_DIR@/lib_enc/show.lp"
 #define DIA_ENC_STB "@PROJECT_SOURCE_DIR@/lib_enc/stable.lp"
 #define DIA_ENC_TB2BADF "@PROJECT_SOURCE_DIR@/lib_enc/theorybase2badf.lp"
 #define DIA_ENC_TKK "@PROJECT_SOURCE_DIR@/lib_enc/3KK.lp"

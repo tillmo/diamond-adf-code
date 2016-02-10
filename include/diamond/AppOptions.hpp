@@ -42,6 +42,7 @@ public:
   static diamond::InputFormat getInputFormat(const std::string& inputformat, const std::vector<std::string>& allowedVals);
   static const std::vector<std::string> ALLOWEDVALS;
   void addSemantics(diamond::ISemantics* semantics);
+  void solveSemantics();
   void transformFunc();
   void getProgInstance(diamond::ISemantics* caller, ClingoLib& lib);
   int getVerbosity() const;

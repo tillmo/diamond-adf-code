@@ -68,6 +68,10 @@ void diamond::Model::solve()
     break;
   }
   }
+  std::string show =
+    #include DIA_ENC_SHOW
+      ;
+  lib.add("encoding",{},show);
   lib.ground({{"base",{}},{"encoding",{}}},nullptr);
   lib.solve(std::bind(&diamond::Model::printResult,this,std::placeholders::_1),{});
 }

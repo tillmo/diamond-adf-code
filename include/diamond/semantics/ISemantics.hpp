@@ -12,6 +12,7 @@ class ISemantics{
 protected:
   diamond::AppOptions* appOpt;
   bool printResult(const Gringo::Model& m);
+
 public:
   ISemantics(diamond::AppOptions* appOpt):appOpt(appOpt){}
   virtual void solve() = 0;

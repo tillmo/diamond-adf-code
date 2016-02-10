@@ -92,6 +92,11 @@ int main(int argc, char**argv){
     std::cout << instance.getValue() << std::endl;
     iformat = diamond::AppOptions::getInputFormat(inputformat.getValue(),allowedValues);
     diamond::AppOptions appoptions(verbosity.getValue(),instance.getValue(), enumerate.getValue(),iformat);
+
+    if (sem_mod.getValue())
+      appoptions.addSemantics(new diamond::Model(&appoptions));
+
+    appoptions.solveSemantics();
   }catch(const TCLAP::ArgException& e){
     std::cerr << e.what() << std::endl;
   }catch(const diamond::InitException& e){
