@@ -4,8 +4,9 @@
 #include <iostream>
 #include <functional>
 #include <diamond/AppOptions.hpp>
+#include <diamond/EmptyMessagePrinter.hpp>
 
-#include <diamond/semantics/Model.hpp>
+#include <diamond/semantics/Semantics.hpp>
 
 #include <clingo/clingocontrol.hh>
 
@@ -50,6 +51,7 @@ void example2(diamond::AppOptions& appop){
   Gringo::Scripts scripts(module);
   ClingoLib lib(scripts, args.size() - 2, args.data());
 
+
   std::string repr_change =
     #include DIA_ENC_REPR_CHANGE
       ;
@@ -93,8 +95,27 @@ int main(int argc, char**argv){
     iformat = diamond::AppOptions::getInputFormat(inputformat.getValue(),allowedValues);
     diamond::AppOptions appoptions(verbosity.getValue(),instance.getValue(), enumerate.getValue(),iformat);
 
-    if (sem_mod.getValue())
+    bool all = sem_all.getValue();
+    if (sem_cfi.getValue() || all)
+      appoptions.addSemantics(new diamond::ConflictFree(&appoptions));
+    if (sem_grd.getValue() || all)
+      appoptions.addSemantics(new diamond::Grounded(&appoptions));
+    if (sem_adm.getValue() || all)
+      appoptions.addSemantics(new diamond::Admissible(&appoptions));
+    if (sem_com.getValue() || all)
+        appoptions.addSemantics(new diamond::Complete(&appoptions));
+    if (sem_mod.getValue() || all)
       appoptions.addSemantics(new diamond::Model(&appoptions));
+    if (sem_stm.getValue() || all)
+      appoptions.addSemantics(new diamond::StableModel(&appoptions));
+    if (sem_prf.getValue() || all)
+      appoptions.addSemantics(new diamond::Preferred(&appoptions));
+    if (sem_stg.getValue() || all)
+      appoptions.addSemantics(new diamond::Stage(&appoptions));
+    if (sem_sem.getValue() || all)
+      appoptions.addSemantics(new diamond::SemiModel(&appoptions));
+    if (sem_nai.getValue() || all)
+      appoptions.addSemantics(new diamond::Naive(&appoptions));
 
     appoptions.solveSemantics();
   }catch(const TCLAP::ArgException& e){

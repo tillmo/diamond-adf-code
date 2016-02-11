@@ -41,7 +41,17 @@ set(DIAMOND_CPP ${DIAMOND_SRC}/main.cpp
                 ${DIAMOND_SRC}/diamond/UsageOutput.cpp
                 ${DIAMOND_SRC}/diamond/AppOptions.cpp
                 ${DIAMOND_SRC}/diamond/semantics/ISemantics.cpp
-                ${DIAMOND_SRC}/diamond/semantics/Model.cpp)
+                ${DIAMOND_SRC}/diamond/semantics/Model.cpp
+                ${DIAMOND_SRC}/diamond/semantics/StableModel.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Grounded.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Complete.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Admissible.cpp
+                ${DIAMOND_SRC}/diamond/semantics/ConflictFree.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Preferred.cpp
+                ${DIAMOND_SRC}/diamond/semantics/SemiModel.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Stage.cpp
+                ${DIAMOND_SRC}/diamond/semantics/Naive.cpp
+                ${DIAMOND_SRC}/diamond/semantics/ITwoStep.cpp)
 
 # generate header-locations for qtcreator
 if(DIAMOND_QTCREATOR)

@@ -1,5 +1,5 @@
-#ifndef DIAMOND_MODEL_HPP
-#define DIAMOND_MODEL_HPP
+#ifndef DIAMOND_GROUNDED_HPP
+#define DIAMOND_GROUNDED_HPP
 
 #include <diamond/semantics/ISemantics.hpp>
 #include <diamond/config.h>
@@ -11,10 +11,10 @@ namespace diamond{
  * @brief The Model class
  * one step call, no transformation neeeded
  */
-class Model : public diamond::ISemantics{
+class Grounded : public diamond::ISemantics{
 protected:
 public:
-  Model(diamond::AppOptions* appOpt):ISemantics(appOpt){}
+  Grounded(diamond::AppOptions* appOpt):ISemantics(appOpt){}
   // ISemantics interface
 public:
   void solve();
@@ -22,4 +22,4 @@ public:
 };
 }
 
-#endif /* DIAMOND_MOD>EL_HPP */
+#endif /* DIAMOND_GROUNDED_HPP */

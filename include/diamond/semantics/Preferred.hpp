@@ -1,7 +1,8 @@
-#ifndef DIAMOND_MODEL_HPP
-#define DIAMOND_MODEL_HPP
+#ifndef DIAMOND_PREFERRED_HPP
+#define DIAMOND_PREFERRED_HPP
 
 #include <diamond/semantics/ISemantics.hpp>
+#include <diamond/semantics/ITwoStep.hpp>
 #include <diamond/config.h>
 #include <clingo/clingocontrol.hh>
 #include <functional>
@@ -11,10 +12,10 @@ namespace diamond{
  * @brief The Model class
  * one step call, no transformation neeeded
  */
-class Model : public diamond::ISemantics{
+class Preferred : public diamond::ISemantics, diamond::ITwoStep{
 protected:
 public:
-  Model(diamond::AppOptions* appOpt):ISemantics(appOpt){}
+  Preferred (diamond::AppOptions* appOpt):ISemantics(appOpt){}
   // ISemantics interface
 public:
   void solve();
@@ -22,4 +23,4 @@ public:
 };
 }
 
-#endif /* DIAMOND_MOD>EL_HPP */
+#endif /* DIAMOND_PREFERRED_HPP */
