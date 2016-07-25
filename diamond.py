@@ -59,6 +59,7 @@ args_scep = []
 # encoding filenames
 enc = dict(
     tkk = "3KK.lp",
+    ac2cico = "ac2cico.lp",
     adm = "admissible.lp",
     afop = "afop.lp",
     base = "base.lp",
@@ -270,7 +271,7 @@ def main():
     transform_to_functions = ((indicates_formula_representation(args.instance) or args.transformpform) and not bipolar)
     # assign the correct encodings of the semantics
     model_encoding=[enc['base'],enc['cf'],enc['model']]
-    operators=[enc['base'],enc['op']]
+    operators=[enc['ac2cico'],enc['base'],enc['op']]
     # check if we get theory base input and add the translation to encodings
     if args.theory_base_input:
         model_encoding=[enc['fmodel'],enc['tb2badf']]
@@ -334,22 +335,22 @@ def main():
         with sp.Popen([clingo,enc['ltype'],instance]+clingo_options,stderr=clstderr,shell=False) as p:
             None
         clingo_options.remove('--enum-mode=brave')
-    if (transform_to_functions and do_transformation and transform=="asp"):
-        tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
-        instance = tmp2.name
-        dia_print("==============================")
-        dia_print("transforming pForm ADF using ASP...")
-        sys.stdout.flush()
-        with sp.Popen([clingo]+[enc['repr_change']]+[os.path.abspath(args.instance)]+['0'], shell=False,stdout=sp.PIPE,stderr=None) as p:
-            sto = p.stdout
-            i=1
-            for byteLine in sto:
-                line = byteLine.decode(sys.stdout.encoding).strip() 
-                if "ci(" in line or "co(" in line:
-                    tmp2.write(line.replace("constant", str(i)).replace(") l(","). l(").replace(") s(","). s(").replace(") co(","). co(").replace(") ci(","). ci(")+".\n")
-                    i+=1
-        tmp2.close()
-        filesToDelete.append(instance)
+    # if (transform_to_functions and do_transformation and transform=="asp"):
+    #     tmp2=tempfile.NamedTemporaryFile(mode='w+t', encoding='utf-8', delete=False)
+    #     instance = tmp2.name
+    #     dia_print("==============================")
+    #     dia_print("transforming pForm ADF using ASP...")
+    #     sys.stdout.flush()
+    #     with sp.Popen([clingo]+[enc['repr_change']]+[os.path.abspath(args.instance)]+['0'], shell=False,stdout=sp.PIPE,stderr=None) as p:
+    #         sto = p.stdout
+    #         i=1
+    #         for byteLine in sto:
+    #             line = byteLine.decode(sys.stdout.encoding).strip() 
+    #             if "ci(" in line or "co(" in line:
+    #                 tmp2.write(line.replace("constant", str(i)).replace(") l(","). l(").replace(") s(","). s(").replace(") co(","). co(").replace(") ci(","). ci(")+".\n")
+    #                 i+=1
+    #     tmp2.close()
+    #     filesToDelete.append(instance)
     if (transform_to_functions and do_transformation and transform=="eclipse"):
         tmp2=tempfile.NamedTemporaryFile(delete=False)
         instance = tmp2.name
