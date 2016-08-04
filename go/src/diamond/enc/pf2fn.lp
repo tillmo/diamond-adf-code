@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% Copyright 2016 Hannes Strass, strass@informatik.uni-leipzig.de
-%%           2015 Matti Berthold (provided a similar for GRAPPA input)
+%%                Matti Berthold (provided a similar encoding for GRAPPA input)
 %%
 %% This file is part of diamond.
 %%

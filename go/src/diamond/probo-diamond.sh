@@ -29,6 +29,8 @@ function information
 {
 	echo "goDIAMOND 0.1.0"
 	echo "Hannes Strass <strass@informatik.uni-leipzig.de>"
+	echo "Stefan Ellmauthaler"
+	echo "Matti Berthold"
 }
 
 # how to invoke your solver: this function must be customized
