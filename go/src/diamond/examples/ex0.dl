@@ -1,0 +1,12 @@
+ac(a,a). % a can be anything
+ac(b,a). % a supports b
+ac(c,neg(a)). % a attacks c
+ac(d,neg(d)). % d is forced to be u
+ac(e,d). % d supports e
+ac(f,neg(d)). % d attacks f
+s(a).
+s(b).
+s(c).
+s(d).
+s(e).
+s(f).
