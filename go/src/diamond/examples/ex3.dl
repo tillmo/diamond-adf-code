@@ -1,4 +1,4 @@
-ac(a,c(v)).  % b supports a
+ac(a,b).  % b supports a
 ac(b,a).  % a supports b
 s(a).
 s(b).

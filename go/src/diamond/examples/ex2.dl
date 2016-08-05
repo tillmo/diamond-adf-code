@@ -1,3 +1,3 @@
-ac(a,neg(b)).  % b attacks a 
+ac(a,neg(a)).  % a attacks a 
 s(a).
-s(b).
+
