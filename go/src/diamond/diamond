@@ -1,0 +1,1 @@
+go run ./diamond.go -c /usr/bin/clingo "$@"

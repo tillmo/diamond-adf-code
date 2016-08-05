@@ -1,0 +1,4 @@
+ac(a,neg(b)). % b attacks a 
+ac(b,a).      % a supports b
+s(a).
+s(b).

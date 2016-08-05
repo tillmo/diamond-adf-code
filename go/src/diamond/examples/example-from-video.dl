@@ -1,0 +1,9 @@
+ac(d,neg(b)).
+ac(a,c(v)).
+ac(c,and(a,b)).
+ac(b,b).
+s(a).
+s(b).
+s(c).
+s(d).
+

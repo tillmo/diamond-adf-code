@@ -1,0 +1,4 @@
+ac(a,b).     % b supports a
+ac(b,c(u)).  % b is unknown (this is the default acceptance condition, it could be omitted)
+s(a).
+s(b).
