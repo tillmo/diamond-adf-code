@@ -254,7 +254,7 @@ func main() {
 
 	// full path to clingo solver
 	var clingoPath string
-	flag.StringVar(&clingoPath, "c", "clingo", "Full path to clingo executable")
+	flag.StringVar(&clingoPath, "c", "/usr/bin/clingo", "Full path to clingo executable")
 
 	// full path to diamond encodings
 	var encPath string
