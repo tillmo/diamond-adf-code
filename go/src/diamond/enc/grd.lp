@@ -35,7 +35,7 @@ t(S, I+1) :- valid(S, I).
 f(S, I+1) :- unsat(S, I).
 u(S, I+1) :- conti(S, I).
 
-fp(I) :- fp(S, I) : s(S).
+fp(I) :- step(I), fp(S, I) : s(S).
 
 fp(S, I+1) :- t(S, I+1), t(S, I).
 fp(S, I+1) :- f(S, I+1), f(S, I).
