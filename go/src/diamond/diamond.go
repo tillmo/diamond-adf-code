@@ -388,10 +388,15 @@ func main() {
 	// now solve for the chosen semantics
 	mode.SetQueryTempFile(additionalArgument)
 
+	// if no semantics has been specified, complain
+	var someSemantics bool
+
 	for i := range semantics {
 
 		// check if the semantics is supposed to be computed
 		if semantics[i].Compute {
+
+			someSemantics = true
 
 			solverArgs := append(mode.SolverCallArguments,
 				Encodify(format.TransformationEncodingFileName),
@@ -417,7 +422,14 @@ func main() {
 			if !quiet { fmt.Println("--------------------------------------------------------------------------------") }
 			command.Run()
 			if !quiet { fmt.Println("--------------------------------------------------------------------------------") }
-			mode.CleanUp()
 		}
+	}
+
+	// remove temporary file if present
+	mode.CleanUp()
+	
+	if !someSemantics {
+		err := errors.New("Fatal error: No semantics specified!")
+		log.Fatal(err)
 	}
 }
