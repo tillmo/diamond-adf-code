@@ -359,7 +359,7 @@ func main() {
 
 		if !af.Active { log.Fatal(errors.New("Fatal error: -mgrd requires -af!")) }
 
-		computeGrounded(instanceFileName)
+		computeGrounded(instanceFileName, cred.Active, scep.Active, additionalArgument)
 
 		return
 	}
@@ -450,7 +450,7 @@ func main() {
 
 // manual implementation of grounded semantics
 
-func computeGrounded(fileName string) {
+func computeGrounded(fileName string, cred bool, scep bool, queryArg string) {
 
 	data, err := ioutil.ReadFile(fileName)
 	
@@ -465,14 +465,9 @@ func computeGrounded(fileName string) {
 	var i, next int
 	var found bool
 
-	// argument status variables
-	const U = 0
-	const F = 1
-	const T = 2
-
 	// bookkeeping variables
-	// maps each argument to its current truth value
-	arguments := make(map[string]int)
+	// maps each argument to its current truth value: "u", "t", or "f"
+	arguments := make(map[string]string)
 	// maps each argument to the list of its attackers
 	attackers := make(map[string][]string)
 	// maps each argument to the list of arguments attacked by it
@@ -503,7 +498,7 @@ func computeGrounded(fileName string) {
 					argString := string(data[i+4:j])
 
 					// add argument to bookkeeping if not already present
-					arguments[argString] = U
+					arguments[argString] = "u"
 					setIfNew(&attackers, argString, nil)
 					setIfNew(&attacked, argString, nil)
 
@@ -601,22 +596,18 @@ func computeGrounded(fileName string) {
 				change = true
 
 				// if it has not been assigned any other value, the argument is T
-				if arguments[arg] == U {
+				if arguments[arg] == "u" {
 
-					// directly output truth value
-					writeArg("t", arg)
-					arguments[arg] = T
+					arguments[arg] = "t"
 				}
 
 				// thus all arguments attacked by arg are F
 				for _, attackee := range attacked[arg] {
 
 					// if an attacked argument has not yet another truth value, it is F
-					if arguments[attackee] == U {
+					if arguments[attackee] == "u" {
 
-						// directly output truth value
-						writeArg("f", attackee)
-						arguments[attackee] = F
+						arguments[attackee] = "f"
 					}
 
 					// for each false argument, remove its attacks
@@ -640,10 +631,33 @@ func computeGrounded(fileName string) {
 		}
 	}
 
-	// all arguments that have not been assigned a value during the loop must be U
-	for arg, _ := range attackers {
+	// if one of the reasoning modes is active, check and return the result, then exit
+	if cred {
 
-		writeArg("u", arg)
+		if arguments[queryArg] == "t" {
+			fmt.Printf("SATISFIABLE\n")
+		} else {
+			fmt.Printf("UNSATISFIABLE\n")
+		}
+
+		return
+	}
+
+	if scep {
+
+		if arguments[queryArg] == "t" {
+			fmt.Printf("UNSATISFIABLE\n")
+		} else {
+			fmt.Printf("SATISFIABLE\n")
+		}
+
+		return
+	}
+
+	// note that all arguments that have not been assigned a value during the loop must be "u" due to initialisation
+	for arg, val := range arguments {
+
+		writeArg(val, arg)
 	}
 
 	// complete the output to mimick clingo output syntax
