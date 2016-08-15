@@ -460,9 +460,6 @@ func computeGrounded(fileName string) {
 	// arguments: arg(<string>).
 	// attacks: att(<string>,<string>).
 	// comment lines: %<string>\n
-	//
-	// upon parsing an argument, initialise its (sleeping) go routine
-	// after parsing, wake up the routines and let them communicate
 
 	// parsing variables
 	var i, next int
@@ -474,144 +471,188 @@ func computeGrounded(fileName string) {
 	const T = 2
 
 	// bookkeeping variables
+	// maps each argument to its current truth value
 	arguments := make(map[string]int)
+	// maps each argument to the list of its attackers
 	attackers := make(map[string][]string)
+	// maps each argument to the list of arguments attacked by it
 	attacked := make(map[string][]string)
+
+	// next indicates where parsing is resumed after an item of interest has been found
+	// initially, next == 0 by initialisation
 
 	for next < len(data) {
 
+		// i indicates the current position in the input data
 		i = next
-		
+
+		// try to parse a whitespace
 		if ( data[i] == ' ' || data[i] == '\t' || data[i] == '\r' || data[i] == '\n' ) {
 
 			// parsed whitespace
 			next = i+1
-			
-		} else if ( data[i] == 'a' && data[i+1] == 'r' && data[i+2] == 'g' && data[i+3] == '(' ) {
+
+		} else
+		// try to parse an argument
+		if ( data[i] == 'a' && data[i+1] == 'r' && data[i+2] == 'g' && data[i+3] == '(' ) {
 			
 			for j := i+4; j <= len(data); j++ {
 				
 				if ( data[j] == ')' && data[j+1] == '.' ) {
 					
 					argString := string(data[i+4:j])
-					// fmt.Println("parsed argument:", argString)
 
 					// add argument to bookkeeping if not already present
 					arguments[argString] = U
 					setIfNew(&attackers, argString, nil)
 					setIfNew(&attacked, argString, nil)
 
+					// resume scanning at position right after the argument fact
 					next = j+2
+
+					// break out of the for loop that looks for the end of the argument declaration
 					break
 				}
 			}
-		} else if ( data[i] == 'a' && data[i+1] == 't' && data[i+2] == 't' && data[i+3] == '(' ) {
-			
+		} else
+		// try to parse an attack
+		if ( data[i] == 'a' && data[i+1] == 't' && data[i+2] == 't' && data[i+3] == '(' ) {
+
+			// look for the end of the first argument
 			for j := i+4; j <= len(data); j++ {
-				
+
+				// try to find a comma
 				if data[j] == ',' {
 
+					// record whether we are allowed to break out of the outer for loop
 					found = false
-					
+
+					// set string containing first argument of attack predicate
 					from := string(data[i+4:j])
-					
+
+					// look for the end of the second argument
 					for k := j+1; k <= len(data); k++ {
-						
+
+						// try to find a closing parenthesis and a full stop
 						if ( data[k] == ')' && data[k+1] == '.' ) {
 
+							// parsing is successful, so we can break out
 							found = true
-							
+
+							// set string containing second argument of attack predicate
 							to := string(data[j+1:k])
-							//fmt.Println("parsed attack: from", from, "to", to)
 
 							// add attacker/attacked to bookkeeping structure
 							appendIfThere(&attackers, to, from)
 							appendIfThere(&attacked, from, to)
-							
+
+							// resume scanning at position right after the attack fact
 							next = k+2
+
+							// break out of the inner for loop looking for the end of the second argument
 							break
 						}
 					}
 
+					// if parsing was successful, break out of the outer for loop
 					if found { break }
 				}
 			}
-		} else if ( data[i] == '%' ) {
-			
-			for j := i+1; j <= len(data); j++ {
-				
-				if data[j] == '\n' {
-					
-					//fmt.Println("parsed comment:", string(data[i:j]))
+		} else
+		// try to parse a comment line
+		if ( data[i] == '%' ) {
 
+			// look for the end of the comment line
+			for j := i+1; j <= len(data); j++ {
+
+				// try to find a line break
+				if data[j] == '\n' {
+
+					// resume scanning after the comment line
 					next = j+1
+
+					// break out of the foor loop looking for the end of the line
 					break
 				}
 			}
 		} else {
-			
+			// parsing failed, exit with a fatal error
 			parse_err := errors.New(fmt.Sprintf("Fatal error: Parsing error: %s", string(data[i:])))
 			log.Fatal(parse_err)
-			
 		}
-
 	}
 
-	// bookkeeping structures initialised, now start
+	// bookkeeping structures initialised, now start computing the least fixpoint of the operator
 
+	// proceed computation until nothing changes any more
 	change := true
 
 	for change {
 
+		// nothing has changed so far
 		change = false
 
 		for arg, attackersOfarg := range attackers {
 
+			// if an argument has no attackers, it is accepted
 			if len(attackersOfarg) < 1 {
-				
+
+				// now something changed
 				change = true
 
+				// if it has not been assigned any other value, the argument is T
 				if arguments[arg] == U {
 
+					// directly output truth value
 					writeArg("t", arg)
 					arguments[arg] = T
 				}
 
+				// thus all arguments attacked by arg are F
 				for _, attackee := range attacked[arg] {
 
+					// if an attacked argument has not yet another truth value, it is F
 					if arguments[attackee] == U {
 
+						// directly output truth value
 						writeArg("f", attackee)
 						arguments[attackee] = F
 					}
 
+					// for each false argument, remove its attacks
 					for _, attackedByAttackee := range attacked[attackee] {
 
 						attackers[attackedByAttackee] = deleteFromSlice(attackers[attackedByAttackee], attackee)
 					}
 
+					// remove arguments from bookkeeping structures
 					delete(attackers, attackee)
 					delete(attacked, attackee)
 				}
 
+				// remove arguments from bookkeeping structures
 				delete(attackers, arg)
 				delete(attacked, arg)
 
+				// we changed the structure over which the loop runs, so break and restart the loop
 				break
 			}
 		}
 	}
 
+	// all arguments that have not been assigned a value during the loop must be U
 	for arg, _ := range attackers {
 
 		writeArg("u", arg)
 	}
 
+	// complete the output to mimick clingo output syntax
 	fmt.Printf("\nSATISFIABLE\n")
 	
 	return
 }
 
+// initialize value val for key key if the key is not yet in the map m
 func setIfNew(m *map[string][]string, key string, val []string) {
 
 	_, ok := (*m)[key]
@@ -622,6 +663,7 @@ func setIfNew(m *map[string][]string, key string, val []string) {
 	}
 }
 
+// if m[key] is non-nil, append el; otherwise set m[key] to the singleton {el}
 func appendIfThere(m *map[string][]string, key string, el string) {
 
 	val, ok := (*m)[key]
@@ -633,7 +675,7 @@ func appendIfThere(m *map[string][]string, key string, el string) {
 	}
 }
 
-// deletes the first occurrence of element in the slice *slice
+// delete the first occurrence of element in the slice *slice
 func deleteFromSlice(slice []string, element string) []string {
 
 	for i := 0; i < len(slice); i++ {
@@ -650,6 +692,7 @@ func deleteFromSlice(slice []string, element string) []string {
 	return slice
 }
 
+// output an argument in ASP predicate syntax
 func writeArg(v, arg string) {
 
 	fmt.Printf("%s(%s) ", v, arg)
