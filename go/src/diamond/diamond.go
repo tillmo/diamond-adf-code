@@ -468,7 +468,13 @@ func computeGrounded(fileName string) {
 	var i, next int
 	var found bool
 
+	// argument status variables
+	const U = 0
+	const F = 1
+	const T = 2
+
 	// bookkeeping variables
+	arguments := make(map[string]int)
 	attackers := make(map[string][]string)
 	attacked := make(map[string][]string)
 
@@ -491,8 +497,9 @@ func computeGrounded(fileName string) {
 					// fmt.Println("parsed argument:", argString)
 
 					// add argument to bookkeeping if not already present
-					setIfNotNew(&attackers, argString, nil)
-					setIfNotNew(&attacked, argString, nil)
+					arguments[argString] = U
+					setIfNew(&attackers, argString, nil)
+					setIfNew(&attacked, argString, nil)
 
 					next = j+2
 					break
@@ -518,8 +525,8 @@ func computeGrounded(fileName string) {
 							//fmt.Println("parsed attack: from", from, "to", to)
 
 							// add attacker/attacked to bookkeeping structure
-							appendIfNotThere(&attackers, to, from)
-							appendIfNotThere(&attacked, from, to)
+							appendIfThere(&attackers, to, from)
+							appendIfThere(&attacked, from, to)
 							
 							next = k+2
 							break
@@ -564,11 +571,19 @@ func computeGrounded(fileName string) {
 				
 				change = true
 
-				writeArg("t", arg)
+				if arguments[arg] == U {
+
+					writeArg("t", arg)
+					arguments[arg] = T
+				}
 
 				for _, attackee := range attacked[arg] {
 
-					writeArg("f", attackee)
+					if arguments[attackee] == U {
+
+						writeArg("f", attackee)
+						arguments[attackee] = F
+					}
 
 					for _, attackedByAttackee := range attacked[attackee] {
 
@@ -581,6 +596,8 @@ func computeGrounded(fileName string) {
 
 				delete(attackers, arg)
 				delete(attacked, arg)
+
+				break
 			}
 		}
 	}
@@ -595,7 +612,7 @@ func computeGrounded(fileName string) {
 	return
 }
 
-func setIfNotNew(m *map[string][]string, key string, val []string) {
+func setIfNew(m *map[string][]string, key string, val []string) {
 
 	_, ok := (*m)[key]
 
@@ -605,7 +622,7 @@ func setIfNotNew(m *map[string][]string, key string, val []string) {
 	}
 }
 
-func appendIfNotThere(m *map[string][]string, key string, el string) {
+func appendIfThere(m *map[string][]string, key string, el string) {
 
 	val, ok := (*m)[key]
 
