@@ -357,6 +357,8 @@ func main() {
 	// finally, check if the manual version of grounded semantics is desired and call the respective function if so
 	if manualGrounded {
 
+		if !af.Active { log.Fatal(errors.New("Fatal error: -mgrd requires -af!")) }
+
 		computeGrounded(instanceFileName)
 
 		return
