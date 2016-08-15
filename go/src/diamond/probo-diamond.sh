@@ -70,7 +70,7 @@ function solver
 	    $diamond -all -com "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "EE-GR" ]
 	then
-	    $diamond -all -grd "$fileinput"
+	    $diamond -all -mgrd "$fileinput"
 	######################################################################
 	## EXISTENCE
 	elif [ "$format" = "apx" -a "$problem" = "SE-PR" ]
@@ -84,7 +84,7 @@ function solver
 	    $diamond -one -com "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "SE-GR" ]
 	then
-	    $diamond -one -grd "$fileinput"
+	    $diamond -one -mgrd "$fileinput"
 	######################################################################
 	## CREDULOUS
 	elif [ "$format" = "apx" -a "$problem" = "DC-PR" ]
@@ -98,7 +98,7 @@ function solver
 	    $diamond -com -cred -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-GR" ]
 	then
-	    $diamond -grd -cred -a "$argument" "$fileinput"
+	    $diamond -mgrd -cred -a "$argument" "$fileinput"
 	######################################################################
 	## SCEPTICAL
 	elif [ "$format" = "apx" -a "$problem" = "DS-PR" ]
@@ -112,7 +112,7 @@ function solver
 	    $diamond -com -scep -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-GR" ]
 	then
-	    $diamond -grd -scep -a "$argument" "$fileinput"
+	    $diamond -mgrd -scep -a "$argument" "$fileinput"
 	else
 	    echoerr "unsupported format or problem"
 	    exit 1
