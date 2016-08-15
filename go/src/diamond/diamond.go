@@ -220,6 +220,10 @@ func main() {
 		flag.BoolVar(&semantics[i].Compute, semantics[i].CommandLineArgument, semantics[i].Compute, semantics[i].CommandLineDescription)
 	}
 
+	// create a switch for the manual treatment of the grounded semantics
+	var manualGrounded bool
+	flag.BoolVar(&manualGrounded, "mgrd", false, "Use grounded semantics (alternative, direct implementation)")
+
 	// input formats
 	fn := InputFormat{ "functional", "fn", "Input uses functional representation using predicates s/1, ci/1, co/1, ci/3, co/3", "", enc.fnop, false }
 	pf := InputFormat{ "formula", "pf", "Input uses propositional formula representation using predicates s/1, ac/2", enc.trans, enc.fnop, true }
@@ -350,6 +354,14 @@ func main() {
 		encPath = string(append([]byte(encPath), '/'))
 	}
 
+	// finally, check if the manual version of grounded semantics is desired and call the respective function if so
+	if manualGrounded {
+
+		computeGrounded(instanceFileName)
+
+		return
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	// now for the solving part
 
@@ -432,4 +444,194 @@ func main() {
 		err := errors.New("Fatal error: No semantics specified!")
 		log.Fatal(err)
 	}
+}
+
+// manual implementation of grounded semantics
+
+func computeGrounded(fileName string) {
+
+	data, err := ioutil.ReadFile(fileName)
+	
+	if err != nil {	log.Fatal(err) }
+
+	// manually parse the contents for
+	// arguments: arg(<string>).
+	// attacks: att(<string>,<string>).
+	// comment lines: %<string>\n
+	//
+	// upon parsing an argument, initialise its (sleeping) go routine
+	// after parsing, wake up the routines and let them communicate
+
+	// parsing variables
+	var i, next int
+	var found bool
+
+	// bookkeeping variables
+	attackers := make(map[string][]string)
+	attacked := make(map[string][]string)
+
+	for next < len(data) {
+
+		i = next
+		
+		if ( data[i] == ' ' || data[i] == '\t' || data[i] == '\r' || data[i] == '\n' ) {
+
+			// parsed whitespace
+			next = i+1
+			
+		} else if ( data[i] == 'a' && data[i+1] == 'r' && data[i+2] == 'g' && data[i+3] == '(' ) {
+			
+			for j := i+4; j <= len(data); j++ {
+				
+				if ( data[j] == ')' && data[j+1] == '.' ) {
+					
+					argString := string(data[i+4:j])
+					// fmt.Println("parsed argument:", argString)
+
+					// add argument to bookkeeping if not already present
+					setIfNotNew(&attackers, argString, nil)
+					setIfNotNew(&attacked, argString, nil)
+
+					next = j+2
+					break
+				}
+			}
+		} else if ( data[i] == 'a' && data[i+1] == 't' && data[i+2] == 't' && data[i+3] == '(' ) {
+			
+			for j := i+4; j <= len(data); j++ {
+				
+				if data[j] == ',' {
+
+					found = false
+					
+					from := string(data[i+4:j])
+					
+					for k := j+1; k <= len(data); k++ {
+						
+						if ( data[k] == ')' && data[k+1] == '.' ) {
+
+							found = true
+							
+							to := string(data[j+1:k])
+							//fmt.Println("parsed attack: from", from, "to", to)
+
+							// add attacker/attacked to bookkeeping structure
+							appendIfNotThere(&attackers, to, from)
+							appendIfNotThere(&attacked, from, to)
+							
+							next = k+2
+							break
+						}
+					}
+
+					if found { break }
+				}
+			}
+		} else if ( data[i] == '%' ) {
+			
+			for j := i+1; j <= len(data); j++ {
+				
+				if data[j] == '\n' {
+					
+					//fmt.Println("parsed comment:", string(data[i:j]))
+
+					next = j+1
+					break
+				}
+			}
+		} else {
+			
+			parse_err := errors.New(fmt.Sprintf("Fatal error: Parsing error: %s", string(data[i:])))
+			log.Fatal(parse_err)
+			
+		}
+
+	}
+
+	// bookkeeping structures initialised, now start
+
+	change := true
+
+	for change {
+
+		change = false
+
+		for arg, attackersOfarg := range attackers {
+
+			if len(attackersOfarg) < 1 {
+				
+				change = true
+
+				writeArg("t", arg)
+
+				for _, attackee := range attacked[arg] {
+
+					writeArg("f", attackee)
+
+					for _, attackedByAttackee := range attacked[attackee] {
+
+						attackers[attackedByAttackee] = deleteFromSlice(attackers[attackedByAttackee], attackee)
+					}
+
+					delete(attackers, attackee)
+					delete(attacked, attackee)
+				}
+
+				delete(attackers, arg)
+				delete(attacked, arg)
+			}
+		}
+	}
+
+	for arg, _ := range attackers {
+
+		writeArg("u", arg)
+	}
+
+	fmt.Printf("\nSATISFIABLE\n")
+	
+	return
+}
+
+func setIfNotNew(m *map[string][]string, key string, val []string) {
+
+	_, ok := (*m)[key]
+
+	if !ok {
+
+		(*m)[key] = val
+	}
+}
+
+func appendIfNotThere(m *map[string][]string, key string, el string) {
+
+	val, ok := (*m)[key]
+
+	if ok {
+		(*m)[key] = append(val, el)
+	} else {
+		(*m)[key] = []string{el}
+	}
+}
+
+// deletes the first occurrence of element in the slice *slice
+func deleteFromSlice(slice []string, element string) []string {
+
+	for i := 0; i < len(slice); i++ {
+
+		if slice[i] == element {
+
+			slice[i] = slice[len(slice)-1]
+			slice = slice[:len(slice)-1]
+
+			return slice
+		}
+	}
+
+	return slice
+}
+
+func writeArg(v, arg string) {
+
+	fmt.Printf("%s(%s) ", v, arg)
 }
