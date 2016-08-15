@@ -23,6 +23,7 @@ h3. Usage
 ** ADFs in formula notation (predicates s/1 and ac/2) -- this is the default option
 ** bipolar ADFs in formula notation with link type information (predicates s/1, ac/2, sup/2, att/2)
 ** AFs in ASPARTIX syntax (predicates arg/1 and att/2)
+* For AFs, there is a dedicated algorithm for problems surrounding the grounded semantics. It can be invoked using "-mgrd" instead of "-grd".
 * for information on further options, including supported semantics and reasoning modes, call "diamond -h"
 
 h3. Limitations

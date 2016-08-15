@@ -31,7 +31,7 @@
 // * Formula representation of instances is now default.
 // * A novel encoding of the three-valued one-step consequence operator for functional-representation ADFs.
 // * Extensibility for new semantics via internal data structures.
-//
+// * Dedicated implementation of grounded semantics for argumentation frameworks.
 
 package main
 
@@ -322,8 +322,7 @@ func main() {
 	if ( (fn.Active && bi.Active) || (fn.Active && af.Active) || (bi.Active && af.Active) ) {
 
 		// if more than one non-default input format is activated, complain and exit
-		err := errors.New("Fatal error: At most one input format can be used!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: At most one input format can be used!"))
 	}
 
 	// check for coherence: reasoning modes
@@ -336,16 +335,14 @@ func main() {
 	if ( (one.Active && cred.Active) || (one.Active && scep.Active) || (cred.Active && scep.Active) ) {
 
 		// if more than one non-default reasoning mode is activated, complain and exit
-		err := errors.New("Fatal error: At most one reasoning mode can be used!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: At most one reasoning mode can be used!"))
 	}
 
 	// check for coherence: if credulous/sceptical reasoning requires an argument
 	if ( cred.Active || scep.Active ) && additionalArgument == "" {
 
 		// if the argument (via -a) is not given, complain and exit
-		err := errors.New("Fatal error: Argument whose acceptance should be checked must be specified by the -a flag!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: Argument whose acceptance should be checked must be specified by the -a flag!"))
 	}
 
 	// check if encodings path ends in "/" and add one if not
