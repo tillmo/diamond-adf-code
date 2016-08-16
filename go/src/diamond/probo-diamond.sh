@@ -88,8 +88,8 @@ function solver
 	######################################################################
 	## CREDULOUS
 	elif [ "$format" = "apx" -a "$problem" = "DC-PR" ]
-	then
-	    $diamond -prf -cred -a "$argument" "$fileinput"
+	then # credulous preferred is credulous admissible
+	    $diamond -adm -cred -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-ST" ]
 	then
 	    $diamond -mod -cred -a "$argument" "$fileinput"
@@ -108,8 +108,8 @@ function solver
 	then
 	    $diamond -mod -scep -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-CO" ]
-	then
-	    $diamond -com -scep -a "$argument" "$fileinput"
+	then # sceptical complete is sceptical grounded
+	    $diamond -mgrd -scep -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-GR" ]
 	then
 	    $diamond -mgrd -scep -a "$argument" "$fileinput"
