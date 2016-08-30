@@ -31,7 +31,7 @@
 // * Formula representation of instances is now default.
 // * A novel encoding of the three-valued one-step consequence operator for functional-representation ADFs.
 // * Extensibility for new semantics via internal data structures.
-//
+// * Dedicated implementation of grounded semantics for argumentation frameworks.
 
 package main
 
@@ -220,6 +220,10 @@ func main() {
 		flag.BoolVar(&semantics[i].Compute, semantics[i].CommandLineArgument, semantics[i].Compute, semantics[i].CommandLineDescription)
 	}
 
+	// create a switch for the manual treatment of the grounded semantics
+	var manualGrounded bool
+	flag.BoolVar(&manualGrounded, "mgrd", false, "Use grounded semantics (alternative, direct implementation)")
+
 	// input formats
 	fn := InputFormat{ "functional", "fn", "Input uses functional representation using predicates s/1, ci/1, co/1, ci/3, co/3", "", enc.fnop, false }
 	pf := InputFormat{ "formula", "pf", "Input uses propositional formula representation using predicates s/1, ac/2", enc.trans, enc.fnop, true }
@@ -254,7 +258,7 @@ func main() {
 
 	// full path to clingo solver
 	var clingoPath string
-	flag.StringVar(&clingoPath, "c", "clingo", "Full path to clingo executable")
+	flag.StringVar(&clingoPath, "c", "/usr/bin/clingo", "Full path to clingo executable")
 
 	// full path to diamond encodings
 	var encPath string
@@ -318,8 +322,7 @@ func main() {
 	if ( (fn.Active && bi.Active) || (fn.Active && af.Active) || (bi.Active && af.Active) ) {
 
 		// if more than one non-default input format is activated, complain and exit
-		err := errors.New("Fatal error: At most one input format can be used!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: At most one input format can be used!"))
 	}
 
 	// check for coherence: reasoning modes
@@ -332,22 +335,30 @@ func main() {
 	if ( (one.Active && cred.Active) || (one.Active && scep.Active) || (cred.Active && scep.Active) ) {
 
 		// if more than one non-default reasoning mode is activated, complain and exit
-		err := errors.New("Fatal error: At most one reasoning mode can be used!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: At most one reasoning mode can be used!"))
 	}
 
 	// check for coherence: if credulous/sceptical reasoning requires an argument
 	if ( cred.Active || scep.Active ) && additionalArgument == "" {
 
 		// if the argument (via -a) is not given, complain and exit
-		err := errors.New("Fatal error: Argument whose acceptance should be checked must be specified by the -a flag!")
-		log.Fatal(err)
+		log.Fatal(errors.New("Fatal error: Argument whose acceptance should be checked must be specified by the -a flag!"))
 	}
 
 	// check if encodings path ends in "/" and add one if not
 	if !strings.HasSuffix(encPath, "/") {
 
 		encPath = string(append([]byte(encPath), '/'))
+	}
+
+	// finally, check if the manual version of grounded semantics is desired and call the respective function if so
+	if manualGrounded {
+
+		if !af.Active { log.Fatal(errors.New("Fatal error: -mgrd requires -af!")) }
+
+		computeGrounded(instanceFileName, cred.Active, scep.Active, additionalArgument)
+
+		return
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -388,10 +399,15 @@ func main() {
 	// now solve for the chosen semantics
 	mode.SetQueryTempFile(additionalArgument)
 
+	// if no semantics has been specified, complain
+	var someSemantics bool
+
 	for i := range semantics {
 
 		// check if the semantics is supposed to be computed
 		if semantics[i].Compute {
+
+			someSemantics = true
 
 			solverArgs := append(mode.SolverCallArguments,
 				Encodify(format.TransformationEncodingFileName),
@@ -417,7 +433,278 @@ func main() {
 			if !quiet { fmt.Println("--------------------------------------------------------------------------------") }
 			command.Run()
 			if !quiet { fmt.Println("--------------------------------------------------------------------------------") }
-			mode.CleanUp()
 		}
 	}
+
+	// remove temporary file if present
+	mode.CleanUp()
+	
+	if !someSemantics {
+		err := errors.New("Fatal error: No semantics specified!")
+		log.Fatal(err)
+	}
+}
+
+// manual implementation of grounded semantics
+
+func computeGrounded(fileName string, cred bool, scep bool, queryArg string) {
+
+	data, err := ioutil.ReadFile(fileName)
+	
+	if err != nil {	log.Fatal(err) }
+
+	// manually parse the contents for
+	// arguments: arg(<string>).
+	// attacks: att(<string>,<string>).
+	// comment lines: %<string>\n
+
+	// parsing variables
+	var i, next int
+	var found bool
+
+	// bookkeeping variables
+	// maps each argument to its current truth value: "u", "t", or "f"
+	arguments := make(map[string]string)
+	// maps each argument to the list of its attackers
+	attackers := make(map[string][]string)
+	// maps each argument to the list of arguments attacked by it
+	attacked := make(map[string][]string)
+
+	// next indicates where parsing is resumed after an item of interest has been found
+	// initially, next == 0 by initialisation
+
+	for next < len(data) {
+
+		// i indicates the current position in the input data
+		i = next
+
+		// try to parse a whitespace
+		if ( data[i] == ' ' || data[i] == '\t' || data[i] == '\r' || data[i] == '\n' ) {
+
+			// parsed whitespace
+			next = i+1
+
+		} else
+		// try to parse an argument
+		if ( data[i] == 'a' && data[i+1] == 'r' && data[i+2] == 'g' && data[i+3] == '(' ) {
+			
+			for j := i+4; j <= len(data); j++ {
+				
+				if ( data[j] == ')' && data[j+1] == '.' ) {
+					
+					argString := string(data[i+4:j])
+
+					// add argument to bookkeeping if not already present
+					arguments[argString] = "u"
+					setIfNew(&attackers, argString, nil)
+					setIfNew(&attacked, argString, nil)
+
+					// resume scanning at position right after the argument fact
+					next = j+2
+
+					// break out of the for loop that looks for the end of the argument declaration
+					break
+				}
+			}
+		} else
+		// try to parse an attack
+		if ( data[i] == 'a' && data[i+1] == 't' && data[i+2] == 't' && data[i+3] == '(' ) {
+
+			// look for the end of the first argument
+			for j := i+4; j <= len(data); j++ {
+
+				// try to find a comma
+				if data[j] == ',' {
+
+					// record whether we are allowed to break out of the outer for loop
+					found = false
+
+					// set string containing first argument of attack predicate
+					from := string(data[i+4:j])
+
+					// look for the end of the second argument
+					for k := j+1; k <= len(data); k++ {
+
+						// try to find a closing parenthesis and a full stop
+						if ( data[k] == ')' && data[k+1] == '.' ) {
+
+							// parsing is successful, so we can break out
+							found = true
+
+							// set string containing second argument of attack predicate
+							to := string(data[j+1:k])
+
+							// add attacker/attacked to bookkeeping structure
+							appendIfThere(&attackers, to, from)
+							appendIfThere(&attacked, from, to)
+
+							// resume scanning at position right after the attack fact
+							next = k+2
+
+							// break out of the inner for loop looking for the end of the second argument
+							break
+						}
+					}
+
+					// if parsing was successful, break out of the outer for loop
+					if found { break }
+				}
+			}
+		} else
+		// try to parse a comment line
+		if ( data[i] == '%' ) {
+
+			// look for the end of the comment line
+			for j := i+1; j <= len(data); j++ {
+
+				// try to find a line break
+				if data[j] == '\n' {
+
+					// resume scanning after the comment line
+					next = j+1
+
+					// break out of the foor loop looking for the end of the line
+					break
+				}
+			}
+		} else {
+			// parsing failed, exit with a fatal error
+			parse_err := errors.New(fmt.Sprintf("Fatal error: Parsing error: %s", string(data[i:])))
+			log.Fatal(parse_err)
+		}
+	}
+
+	// bookkeeping structures initialised, now start computing the least fixpoint of the operator
+
+	// proceed computation until nothing changes any more
+	change := true
+
+	for change {
+
+		// nothing has changed so far
+		change = false
+
+		for arg, attackersOfarg := range attackers {
+
+			// if an argument has no attackers, it is accepted
+			if len(attackersOfarg) < 1 {
+
+				// now something changed
+				change = true
+
+				// if it has not been assigned any other value, the argument is T
+				if arguments[arg] == "u" {
+
+					arguments[arg] = "t"
+				}
+
+				// thus all arguments attacked by arg are F
+				for _, attackee := range attacked[arg] {
+
+					// if an attacked argument has not yet another truth value, it is F
+					if arguments[attackee] == "u" {
+
+						arguments[attackee] = "f"
+					}
+
+					// for each false argument, remove its attacks
+					for _, attackedByAttackee := range attacked[attackee] {
+
+						attackers[attackedByAttackee] = deleteFromSlice(attackers[attackedByAttackee], attackee)
+					}
+
+					// remove arguments from bookkeeping structures
+					delete(attackers, attackee)
+					delete(attacked, attackee)
+				}
+
+				// remove arguments from bookkeeping structures
+				delete(attackers, arg)
+				delete(attacked, arg)
+
+				// we changed the structure over which the loop runs, so break and restart the loop
+				break
+			}
+		}
+	}
+
+	// if one of the reasoning modes is active, check and return the result, then exit
+	if cred {
+
+		if arguments[queryArg] == "t" {
+			fmt.Printf("SATISFIABLE\n")
+		} else {
+			fmt.Printf("UNSATISFIABLE\n")
+		}
+
+		return
+	}
+
+	if scep {
+
+		if arguments[queryArg] == "t" {
+			fmt.Printf("UNSATISFIABLE\n")
+		} else {
+			fmt.Printf("SATISFIABLE\n")
+		}
+
+		return
+	}
+
+	// note that all arguments that have not been assigned a value during the loop must be "u" due to initialisation
+	for arg, val := range arguments {
+
+		writeArg(val, arg)
+	}
+
+	// complete the output to mimick clingo output syntax
+	fmt.Printf("\nSATISFIABLE\n")
+	
+	return
+}
+
+// initialize value val for key key if the key is not yet in the map m
+func setIfNew(m *map[string][]string, key string, val []string) {
+
+	_, ok := (*m)[key]
+
+	if !ok {
+
+		(*m)[key] = val
+	}
+}
+
+// if m[key] is non-nil, append el; otherwise set m[key] to the singleton {el}
+func appendIfThere(m *map[string][]string, key string, el string) {
+
+	val, ok := (*m)[key]
+
+	if ok {
+		(*m)[key] = append(val, el)
+	} else {
+		(*m)[key] = []string{el}
+	}
+}
+
+// delete the first occurrence of element in the slice *slice
+func deleteFromSlice(slice []string, element string) []string {
+
+	for i := 0; i < len(slice); i++ {
+
+		if slice[i] == element {
+
+			slice[i] = slice[len(slice)-1]
+			slice = slice[:len(slice)-1]
+
+			return slice
+		}
+	}
+
+	return slice
+}
+
+// output an argument in ASP predicate syntax
+func writeArg(v, arg string) {
+
+	fmt.Printf("%s(%s) ", v, arg)
 }

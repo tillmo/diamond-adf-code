@@ -29,6 +29,8 @@ function information
 {
 	echo "goDIAMOND 0.1.0"
 	echo "Hannes Strass <strass@informatik.uni-leipzig.de>"
+	echo "Stefan Ellmauthaler"
+	echo "Matti Berthold"
 }
 
 # how to invoke your solver: this function must be customized
@@ -68,7 +70,7 @@ function solver
 	    $diamond -all -com "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "EE-GR" ]
 	then
-	    $diamond -all -grd "$fileinput"
+	    $diamond -all -mgrd "$fileinput"
 	######################################################################
 	## EXISTENCE
 	elif [ "$format" = "apx" -a "$problem" = "SE-PR" ]
@@ -82,12 +84,12 @@ function solver
 	    $diamond -one -com "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "SE-GR" ]
 	then
-	    $diamond -one -grd "$fileinput"
+	    $diamond -one -mgrd "$fileinput"
 	######################################################################
 	## CREDULOUS
 	elif [ "$format" = "apx" -a "$problem" = "DC-PR" ]
-	then
-	    $diamond -prf -cred -a "$argument" "$fileinput"
+	then # credulous preferred is credulous admissible
+	    $diamond -adm -cred -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-ST" ]
 	then
 	    $diamond -mod -cred -a "$argument" "$fileinput"
@@ -96,7 +98,7 @@ function solver
 	    $diamond -com -cred -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DC-GR" ]
 	then
-	    $diamond -grd -cred -a "$argument" "$fileinput"
+	    $diamond -mgrd -cred -a "$argument" "$fileinput"
 	######################################################################
 	## SCEPTICAL
 	elif [ "$format" = "apx" -a "$problem" = "DS-PR" ]
@@ -106,11 +108,11 @@ function solver
 	then
 	    $diamond -mod -scep -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-CO" ]
-	then
-	    $diamond -com -scep -a "$argument" "$fileinput"
+	then # sceptical complete is sceptical grounded
+	    $diamond -mgrd -scep -a "$argument" "$fileinput"
 	elif [ "$format" = "apx" -a "$problem" = "DS-GR" ]
 	then
-	    $diamond -grd -scep -a "$argument" "$fileinput"
+	    $diamond -mgrd -scep -a "$argument" "$fileinput"
 	else
 	    echoerr "unsupported format or problem"
 	    exit 1

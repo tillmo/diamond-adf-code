@@ -1,0 +1,32 @@
+h1. goDIAMOND
+
+h2. go implementation of DIAlectical MOdels eNcoDings
+
+h3. Requirements
+
+* go (tested with version 1.6)
+* clingo (tested with version 4.5.4)
+
+h3. Installation
+
+* Add "diamond-adf-code/go/" to the GOPATH variable
+* Compile binary with "go build diamond"
+* Test via (e.g.) "diamond -h"
+
+h3. Usage
+
+* the full path to the clingo executable (if it differs from /usr/bin/clingo) must be specified in each call via -c
+* the full path to diamond's encodings must be specified in each call via -d
+* goDIAMOND expects an obligatory command line argument, the instance file name
+* goDIAMOND can read the following (B)A(D)F input formats:
+** ADFs in functional notation (predicates s/1, ci/1, co/1, ci/3, co/3; identifier "0" should not be used as second argument of ci/3 and co/3)
+** ADFs in formula notation (predicates s/1 and ac/2) -- this is the default option
+** bipolar ADFs in formula notation with link type information (predicates s/1, ac/2, sup/2, att/2)
+** AFs in ASPARTIX syntax (predicates arg/1 and att/2)
+* For AFs, there is a dedicated algorithm for problems surrounding the grounded semantics. It can be invoked using "-mgrd" instead of "-grd".
+* for information on further options, including supported semantics and reasoning modes, call "diamond -h"
+
+h3. Limitations
+
+* non-bipolar ADFs in formula notation where some statement has more than 31 parents are not supported
+* if numbers of statements come close to that, memory consumption can become quite significant
