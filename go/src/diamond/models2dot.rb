@@ -33,6 +33,18 @@ def read_models(model_type,file)
   models
 end
 
+#main processing
+
+if ARGV[0].nil?
+  puts "Usage: models2dot.rb <file>"
+  exit 1
+end
+
+if !File.exists?(ARGV[0])
+  puts "#{ARGV[0]} not found"
+  exit 1
+end
+
 models = read_models("adm",ARGV[0])
 
 model_types = {"prf" => "peripheries=3", "grd" => "shape=octagon", "com" => "peripheries=2", "nai" => "color=blue", "mod" => "peripheries=4" }
