@@ -1,0 +1,20 @@
+digraph G { rankdir=BT;
+"q,r,s,-p"[color=blue,peripheries=2,peripheries=3,peripheries=4];
+"r,s,-p";
+"r,s,-p" -> "q,r,s,-p";
+"p,q,s,-r"[color=blue,peripheries=2,peripheries=3,peripheries=4];
+"p,q,-r";
+"p,q,-r" -> "p,q,s,-r";
+"q,s"[peripheries=2,shape=octagon];
+"q,s" -> "q,r,s,-p";
+"q,s" -> "p,q,s,-r";
+"q";
+"q" -> "p,q,-r";
+"q" -> "q,s";
+"s";
+"s" -> "r,s,-p";
+"s" -> "q,s";
+"";
+"" -> "q";
+"" -> "s";
+}

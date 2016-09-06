@@ -1,0 +1,10 @@
+s(p).
+s(q).
+s(r).
+s(s).
+ac(p,and(neg(r),q)).
+ac(r,and(neg(p),s)).
+ac(q,q).
+ac(s,s).
+
+
